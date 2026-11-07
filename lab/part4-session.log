@@ -1,0 +1,2475 @@
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7m./scenario.sh up[27m[16D[27m.[27m/[27ms[27mc[27me[27mn[27ma[27mr[27mi[27mo[27m.[27ms[27mh[27m [27mu[27mp[?2004l
+==> applying cluster environment (cluster-state/)
+namespace/debug-lab created
+Error from server (NotFound): error when creating "cluster-state/limits.yaml": namespaces "debug-lab" not found
+==> installing the broken chart
+Release "debug-lab" does not exist. Installing it now.
+Error: server-side apply failed for object debug-lab/migrate batch/v1, Kind=Job: Job.batch "migrate" is invalid: spec.template.spec.restartPolicy: Required value: valid values: "OnFailure", "Never"
+
+[2mhelm reported an error. That is not your machine misbehaving —[0m
+[2mit is part of the exercise. Read the error; it is evidence.[0m
+
+Lab is (partially) installed. Investigate with kubectl, fix the chart,
+re-run './scenario.sh up' to apply your fixes, and './scenario.sh verify'
+to check progress.
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mkubectl get namespaces[27m[22D[27mk[27mu[27mb[27me[27mc[27mt[27ml[27m [27mg[27me[27mt[27m [27mn[27ma[27mm[27me[27ms[27mp[27ma[27mc[27me[27ms' [?2004l
+NAME                 STATUS   AGE
+debug-lab            Active   39s
+default              Active   76m
+demo                 Active   75m
+ingress-nginx        Active   75m
+kube-node-lease      Active   76m
+kube-public          Active   76m
+kube-system          Active   76m
+local-path-storage   Active   76m
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mkubectl get all -n debug-lab[27m[28D[27mk[27mu[27mb[27me[27mc[27mt[27ml[27m [27mg[27me[27mt[27m [27ma[27ml[27ml[27m [27m-[27mn[27m [27md[27me[27mb[27mu[27mg[27m-[27ml[27ma[27mb[?2004l
+NAME                            READY   STATUS                       RESTARTS   AGE
+pod/backend-7948fd6b4b-6spgv    0/1     CreateContainerConfigError   0          43s
+pod/gateway-5cbdcd4bf8-mv9qz    0/1     CreateContainerConfigError   0          43s
+pod/metrics-547dccf75-ddbmx     0/1     CreateContainerConfigError   0          43s
+pod/reporter-6f8bff6b8d-stqp8   0/1     CreateContainerConfigError   0          43s
+pod/worker-5fcd6b9b6b-zzjgx     0/1     CreateContainerConfigError   0          43s
+
+NAME               TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+service/backend    ClusterIP   10.96.226.90    <none>        8080/TCP   43s
+service/gateway    ClusterIP   10.96.34.255    <none>        80/TCP     43s
+service/reporter   ClusterIP   10.96.225.227   <none>        8080/TCP   43s
+
+NAME                       READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/backend    0/1     1            0           43s
+deployment.apps/gateway    0/1     1            0           43s
+deployment.apps/metrics    0/1     1            0           43s
+deployment.apps/reporter   0/1     1            0           43s
+deployment.apps/worker     0/1     1            0           43s
+
+NAME                                  DESIRED   CURRENT   READY   AGE
+replicaset.apps/backend-7948fd6b4b    1         1         0       43s
+replicaset.apps/gateway-5cbdcd4bf8    1         1         0       43s
+replicaset.apps/metrics-547dccf75     1         1         0       43s
+replicaset.apps/reporter-6f8bff6b8d   1         1         0       43s
+replicaset.apps/worker-5fcd6b9b6b     1         1         0       43s
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mkubectl get jobs -n debug-lab[27m[29D[27mk[27mu[27mb[27me[27mc[27mt[27ml[27m [27mg[27me[27mt[27m [27mj[27mo[27mb[27ms[27m [27m-[27mn[27m [27md[27me[27mb[27mu[27mg[27m-[27ml[27ma[27mb[?2004l
+No resources found in debug-lab namespace.
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mhelm status debug-lab -n debug-lab[27m[34D[27mh[27me[27ml[27mm[27m [27ms[27mt[27ma[27mt[27mu[27ms[27m [27md[27me[27mb[27mu[27mg[27m-[27ml[27ma[27mb[27m [27m-[27mn[27m [27md[27me[27mb[27mu[27mg[27m-[27ml[27ma[27mb[?2004l
+NAME: debug-lab
+LAST DEPLOYED: Fri Nov  6 18:38:20 2026
+NAMESPACE: [36mdebug-lab[0m
+STATUS: [31mfailed[0m
+REVISION: 1
+DESCRIPTION: Release "debug-lab" failed: server-side apply failed for object debug-lab/migrate batch/v1, Kind=Job: Job.batch "migrate" is invalid: spec.template.spec.restartPolicy: Required value: valid values: "OnFailure", "Never"
+RESOURCES:
+==> v1/Deployment
+NAME      READY   UP-TO-DATE   AVAILABLE   AGE
+backend   0/1     1            0           61s
+gateway   0/1   1     0     61s
+metrics   0/1   1     0     61s
+reporter   0/1   1     0     61s
+worker   0/1   1     0     61s
+
+==> v1/Pod(related)
+NAME                       READY   STATUS                       RESTARTS   AGE
+backend-7948fd6b4b-6spgv   0/1     CreateContainerConfigError   0          61s
+gateway-5cbdcd4bf8-mv9qz   0/1   CreateContainerConfigError   0     61s
+metrics-547dccf75-ddbmx   0/1   CreateContainerConfigError   0     61s
+reporter-6f8bff6b8d-stqp8   0/1   CreateContainerConfigError   0     61s
+worker-5fcd6b9b6b-zzjgx   0/1   CreateContainerConfigError   0     61s
+
+==> v1/ServiceAccount
+NAME       AGE
+reporter   61s
+
+==> v1/Role
+NAME            CREATED AT
+reporter-read   2026-11-06T13:08:20Z
+
+==> v1/RoleBinding
+NAME            ROLE                 AGE
+reporter-read   Role/reporter-read   61s
+
+==> v1/Service
+NAME      TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)    AGE
+backend   ClusterIP   10.96.226.90   <none>        8080/TCP   61s
+gateway   ClusterIP   10.96.34.255   <none>   80/TCP   61s
+reporter   ClusterIP   10.96.225.227   <none>   8080/TCP   61s
+
+
+TEST SUITE: None
+NOTES:
+debug-lab installed into namespace debug-lab.
+
+Goal state:
+  * migrate Job: Completed
+  * backend, gateway, worker, reporter, metrics: all pods Running and 1/1 Ready
+  * gateway /status reports {"self":"ok","backend":"ok",...}
+
+Check your progress at any time:
+  ./scenario.sh verify
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mkubectl describe pod backend-7948fd6b4b-6spgv -n debug-lab[27m[58D[27mk[27mu[27mb[27me[27mc[27mt[27ml[27m [27md[27me[27ms[27mc[27mr[27mi[27mb[27me[27m [27mp[27mo[27md[27m [27mb[27ma[27mc[27mk[27me[27mn[27md[27m-[27m7[27m9[27m4[27m8[27mf[27md[27m6[27mb[27m4[27mb[27m-[27m6[27ms[27mp[27mg[27mv[27m [27m-[27mn[27m [27md[27me[27mb[27mu[27mg[27m-[27ml[27ma[27mb[?2004l
+Name:             backend-7948fd6b4b-6spgv
+Namespace:        debug-lab
+Priority:         0
+Service Account:  default
+Node:             demo-control-plane/172.18.0.2
+Start Time:       Fri, 06 Nov 2026 18:38:20 +0530
+Labels:           app=backend
+                  app.kubernetes.io/managed-by=Helm
+                  app.kubernetes.io/part-of=eb-debug-lab
+                  helm.sh/chart=debug-lab-2.0.0
+                  pod-template-hash=7948fd6b4b
+Annotations:      <none>
+Status:           Pending
+IP:               10.244.0.13
+IPs:
+  IP:           10.244.0.13
+Controlled By:  ReplicaSet/backend-7948fd6b4b
+Containers:
+  backend:
+    Container ID:   
+    Image:          docker.io/ebinterview/eb-debug-app:1.0.1
+    Image ID:       
+    Port:           8080/TCP (http)
+    Host Port:      0/TCP (http)
+    State:          Waiting
+      Reason:       CreateContainerConfigError
+    Ready:          False
+    Restart Count:  0
+    Limits:
+      cpu:     200m
+      memory:  128Mi
+    Requests:
+      cpu:      50m
+      memory:   64Mi
+    Readiness:  http-get http://:8080/healthz delay=3s timeout=3s period=5s #success=1 #failure=3
+    Environment:
+      APP_MODE:  api
+      APP_NAME:  backend
+      VERSION:   2.0.0
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-xdm87 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-xdm87:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                From               Message
+  ----     ------     ----               ----               -------
+  Normal   Scheduled  106s               default-scheduler  Successfully assigned debug-lab/backend-7948fd6b4b-6spgv to demo-control-plane
+  Normal   Pulling    106s               kubelet            spec.containers{backend}: Pulling image "docker.io/ebinterview/eb-debug-app:1.0.1"
+  Normal   Pulled     89s                kubelet            spec.containers{backend}: Successfully pulled image "docker.io/ebinterview/eb-debug-app:1.0.1" in 2.07s (17.046s including waiting). Image size: 3279587 bytes.
+  Warning  Failed     11s (x8 over 89s)  kubelet            spec.containers{backend}: Error: container has runAsNonRoot and image has non-numeric user (nonroot), cannot verify user is non-root (pod: "backend-7948fd6b4b-6spgv_debug-lab(75ff6fb9-5e25-41f1-a726-7baee3afd9e9)", container: backend)
+  Normal   Pulled     11s (x7 over 88s)  kubelet            spec.containers{backend}: Container image "docker.io/ebinterview/eb-debug-app:1.0.1" already present on machine and can be accessed by the pod
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mkubectl get events -n debug-lab --sort-by='.lastTimestamp'[27m[58D[27mk[27mu[27mb[27me[27mc[27mt[27ml[27m [27mg[27me[27mt[27m [27me[27mv[27me[27mn[27mt[27ms[27m [27m-[27mn[27m [27md[27me[27mb[27mu[27mg[27m-[27ml[27ma[27mb[27m [27m-[27m-[27ms[27mo[27mr[27mt[27m-[27mb[27my[27m=[27m'[27m.[27ml[27ma[27ms[27mt[27mT[27mi[27mm[27me[27ms[27mt[27ma[27mm[27mp[27m'[?2004l
+LAST SEEN   TYPE      REASON              OBJECT                           MESSAGE
+112s        Normal    ScalingReplicaSet   deployment/reporter              Scaled up replica set reporter-6f8bff6b8d from 0 to 1
+112s        Normal    Pulling             pod/backend-7948fd6b4b-6spgv     Pulling image "docker.io/ebinterview/eb-debug-app:1.0.1"
+112s        Normal    ScalingReplicaSet   deployment/worker                Scaled up replica set worker-5fcd6b9b6b from 0 to 1
+112s        Normal    SuccessfulCreate    replicaset/worker-5fcd6b9b6b     Created pod: worker-5fcd6b9b6b-zzjgx
+112s        Normal    Pulling             pod/worker-5fcd6b9b6b-zzjgx      Pulling image "docker.io/ebinterview/eb-debug-app:1.0.1"
+112s        Normal    SuccessfulCreate    replicaset/backend-7948fd6b4b    Created pod: backend-7948fd6b4b-6spgv
+112s        Normal    ScalingReplicaSet   deployment/backend               Scaled up replica set backend-7948fd6b4b from 0 to 1
+112s        Normal    Scheduled           pod/gateway-5cbdcd4bf8-mv9qz     Successfully assigned debug-lab/gateway-5cbdcd4bf8-mv9qz to demo-control-plane
+112s        Normal    Scheduled           pod/worker-5fcd6b9b6b-zzjgx      Successfully assigned debug-lab/worker-5fcd6b9b6b-zzjgx to demo-control-plane
+112s        Normal    Pulling             pod/gateway-5cbdcd4bf8-mv9qz     Pulling image "docker.io/ebinterview/eb-debug-app:1.0.1"
+112s        Normal    SuccessfulCreate    replicaset/gateway-5cbdcd4bf8    Created pod: gateway-5cbdcd4bf8-mv9qz
+112s        Normal    SuccessfulCreate    replicaset/reporter-6f8bff6b8d   Created pod: reporter-6f8bff6b8d-stqp8
+112s        Normal    ScalingReplicaSet   deployment/metrics               Scaled up replica set metrics-547dccf75 from 0 to 1
+112s        Normal    ScalingReplicaSet   deployment/gateway               Scaled up replica set gateway-5cbdcd4bf8 from 0 to 1
+112s        Normal    Scheduled           pod/metrics-547dccf75-ddbmx      Successfully assigned debug-lab/metrics-547dccf75-ddbmx to demo-control-plane
+112s        Normal    Pulling             pod/metrics-547dccf75-ddbmx      Pulling image "docker.io/ebinterview/eb-debug-app:1.0.1"
+112s        Normal    Scheduled           pod/backend-7948fd6b4b-6spgv     Successfully assigned debug-lab/backend-7948fd6b4b-6spgv to demo-control-plane
+112s        Normal    Pulling             pod/reporter-6f8bff6b8d-stqp8    Pulling image "docker.io/ebinterview/eb-debug-app:1.0.1"
+112s        Normal    Scheduled           pod/reporter-6f8bff6b8d-stqp8    Successfully assigned debug-lab/reporter-6f8bff6b8d-stqp8 to demo-control-plane
+112s        Normal    SuccessfulCreate    replicaset/metrics-547dccf75     Created pod: metrics-547dccf75-ddbmx
+104s        Normal    Pulled              pod/metrics-547dccf75-ddbmx      Successfully pulled image "docker.io/ebinterview/eb-debug-app:1.0.1" in 7.791s (7.791s including waiting). Image size: 3279587 bytes.
+101s        Normal    Pulled              pod/reporter-6f8bff6b8d-stqp8    Successfully pulled image "docker.io/ebinterview/eb-debug-app:1.0.1" in 2.559s (10.336s including waiting). Image size: 3279587 bytes.
+99s         Normal    Pulled              pod/gateway-5cbdcd4bf8-mv9qz     Successfully pulled image "docker.io/ebinterview/eb-debug-app:1.0.1" in 2.071s (12.405s including waiting). Image size: 3279587 bytes.
+97s         Normal    Pulled              pod/worker-5fcd6b9b6b-zzjgx      Successfully pulled image "docker.io/ebinterview/eb-debug-app:1.0.1" in 2.62s (14.984s including waiting). Image size: 3279587 bytes.
+95s         Normal    Pulled              pod/backend-7948fd6b4b-6spgv     Successfully pulled image "docker.io/ebinterview/eb-debug-app:1.0.1" in 2.07s (17.046s including waiting). Image size: 3279587 bytes.
+12s         Normal    Pulled              pod/metrics-547dccf75-ddbmx      Container image "docker.io/ebinterview/eb-debug-app:1.0.1" already present on machine and can be accessed by the pod
+12s         Warning   Failed              pod/metrics-547dccf75-ddbmx      Error: container has runAsNonRoot and image has non-numeric user (nonroot), cannot verify user is non-root (pod: "metrics-547dccf75-ddbmx_debug-lab(cd07064c-f229-4115-a7bf-0980887f9afc)", container: metrics)
+9s          Warning   Failed              pod/gateway-5cbdcd4bf8-mv9qz     Error: container has runAsNonRoot and image has non-numeric user (nonroot), cannot verify user is non-root (pod: "gateway-5cbdcd4bf8-mv9qz_debug-lab(a6c71211-4bdf-4aea-ba91-494620500a74)", container: gateway)
+9s          Normal    Pulled              pod/gateway-5cbdcd4bf8-mv9qz     Container image "docker.io/ebinterview/eb-debug-app:1.0.1" already present on machine and can be accessed by the pod
+7s          Normal    Pulled              pod/reporter-6f8bff6b8d-stqp8    Container image "docker.io/ebinterview/eb-debug-app:1.0.1" already present on machine and can be accessed by the pod
+7s          Warning   Failed              pod/reporter-6f8bff6b8d-stqp8    Error: container has runAsNonRoot and image has non-numeric user (nonroot), cannot verify user is non-root (pod: "reporter-6f8bff6b8d-stqp8_debug-lab(a860ba1a-5386-409c-94bd-6da1ff6e3f58)", container: reporter)
+5s          Warning   Failed              pod/worker-5fcd6b9b6b-zzjgx      Error: container has runAsNonRoot and image has non-numeric user (nonroot), cannot verify user is non-root (pod: "worker-5fcd6b9b6b-zzjgx_debug-lab(ba9f8850-8e5f-41cf-b953-ec19c50d7411)", container: worker)
+5s          Normal    Pulled              pod/worker-5fcd6b9b6b-zzjgx      Container image "docker.io/ebinterview/eb-debug-app:1.0.1" already present on machine and can be accessed by the pod
+3s          Normal    Pulled              pod/backend-7948fd6b4b-6spgv     Container image "docker.io/ebinterview/eb-debug-app:1.0.1" already present on machine and can be accessed by the pod
+3s          Warning   Failed              pod/backend-7948fd6b4b-6spgv     Error: container has runAsNonRoot and image has non-numeric user (nonroot), cannot verify user is non-root (pod: "backend-7948fd6b4b-6spgv_debug-lab(75ff6fb9-5e25-41f1-a726-7baee3afd9e9)", container: backend)
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mgrep -R -n -E 'runAsNonRoot|runAsUser|runAsGroup|securityContext|restartP[7mo[7mlicy' broken-chart[27m[K[A[28C[27mg[27mr[27me[27mp[27m [27m-[27mR[27m [27m-[27mn[27m [27m-[27mE[27m [27m'[27mr[27mu[27mn[27mA[27ms[27mN[27mo[27mn[27mR[27mo[27mo[27mt[27m|[27mr[27mu[27mn[27mA[27ms[27mU[27ms[27me[27mr[27m|[27mr[27mu[27mn[27mA[27ms[27mG[27mr[27mo[27mu[27mp[27m|[27ms[27me[27mc[27mu[27mr[27mi[27mt[27my[27mC[27mo[27mn[27mt[27me[27mx[27mt[27m|[27mr[27me[27ms[27mt[27ma[27mr[27mt[27mPo[27ml[27mi[27mc[27my[27m'[27m [27mb[27mr[27mo[27mk[27me[27mn[27m-[27mc[27mh[27ma[27mr[27mt[?2004l
+broken-chart/templates/metrics.yaml:38:          securityContext:
+broken-chart/templates/metrics.yaml:39:            runAsNonRoot: true
+broken-chart/templates/worker.yaml:38:          securityContext:
+broken-chart/templates/worker.yaml:39:            runAsNonRoot: true
+broken-chart/templates/reporter.yaml:43:          securityContext:
+broken-chart/templates/reporter.yaml:44:            runAsNonRoot: true
+broken-chart/templates/gateway.yaml:38:          securityContext:
+broken-chart/templates/gateway.yaml:39:            runAsNonRoot: true
+broken-chart/templates/backend.yaml:38:          securityContext:
+broken-chart/templates/backend.yaml:39:            runAsNonRoot: true
+broken-chart/templates/migrate-job.yaml:16:      restartPolicy: Always
+broken-chart/templates/migrate-job.yaml:28:          securityContext:
+broken-chart/templates/migrate-job.yaml:29:            runAsNonRoot: true
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mcat broken-chart/templates/migrate-job.yaml[27m[43D[27mc[27ma[27mt[27m [27mb[27mr[27mo[27mk[27me[27mn[27m-[27mc[27mh[27ma[27mr[27mt[27m/[27mt[27me[27mm[27mp[27ml[27ma[27mt[27me[27ms[27m/[27mm[27mi[27mg[27mr[27ma[27mt[27me[27m-[27mj[27mo[27mb[27m.[27my[27ma[27mm[27ml[?2004l
+{{- if .Values.migrate.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migrate
+  labels:
+    app: migrate
+    {{- include "lab.labels" . | nindent 4 }}
+spec:
+  backoffLimit: {{ .Values.migrate.backoffLimit }}
+  template:
+    metadata:
+      labels:
+        app: migrate
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: migrate
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: APP_MODE
+              value: "migrate"
+            - name: APP_NAME
+              value: "migrate"
+            - name: VERSION
+              value: "2.0.0"
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"
+{{- end }}
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mcat scenario.sh[27m[15D[27mc[27ma[27mt[27m [27ms[27mc[27me[27mn[27ma[27mr[27mi[27mo[27m.[27ms[27mh[?2004l
+#!/usr/bin/env bash
+# Debug lab driver — Enterprise Bot DevOps take-home, Part 4.
+#
+#   ./scenario.sh up       install the lab (cluster-state + broken chart)
+#   ./scenario.sh verify   check the goal state; exit code = number of failures
+#   ./scenario.sh reset    remove the lab completely (then `up` to start over)
+#
+# Requires: kubectl and helm pointed at a local cluster (kind or minikube).
+# The same checks `verify` runs are the ones our grading harness runs — when
+# this is green, that part of your submission is done.
+
+set -u
+cd "$(dirname "$0")"
+
+NS=debug-lab
+RELEASE=debug-lab
+
+C_GREEN=$'\033[32m'; C_RED=$'\033[31m'; C_DIM=$'\033[2m'; C_OFF=$'\033[0m'
+PASS=0; FAIL=0
+ok()  { PASS=$((PASS+1)); echo "  ${C_GREEN}PASS${C_OFF}  $*"; }
+bad() { FAIL=$((FAIL+1)); echo "  ${C_RED}FAIL${C_OFF}  $*"; }
+
+up() {
+  echo "==> applying cluster environment (cluster-state/)"
+  kubectl apply -f cluster-state/
+  echo "==> installing the broken chart"
+  if ! helm upgrade --install "$RELEASE" ./broken-chart -n "$NS"; then
+    echo ""
+    echo "${C_DIM}helm reported an error. That is not your machine misbehaving —${C_OFF}"
+    echo "${C_DIM}it is part of the exercise. Read the error; it is evidence.${C_OFF}"
+  fi
+  echo ""
+  echo "Lab is (partially) installed. Investigate with kubectl, fix the chart,"
+  echo "re-run './scenario.sh up' to apply your fixes, and './scenario.sh verify'"
+  echo "to check progress."
+}
+
+# One throwaway busybox pod runs all in-cluster probes in a single pass.
+incluster_probe() {
+  kubectl -n "$NS" run eb-verify-probe --rm -i --restart=Never \
+    --image=busybox:1.36 --quiet --pod-running-timeout=90s --command -- sh -c '
+      wget -q -O- -T 4 http://backend:8080/healthz >/dev/null 2>&1 \
+        && echo PROBE_BACKEND=ok || echo PROBE_BACKEND=fail
+      GW=$(wget -q -O- -T 6 http://gateway.debug-lab.svc/status 2>/dev/null)
+      echo "PROBE_GATEWAY_BODY=$GW"
+      RP=$(wget -q -O- -T 6 http://reporter:8080/report 2>/dev/null)
+      echo "PROBE_REPORTER_BODY=$RP"
+      nslookup backend >/dev/null 2>&1 \
+        && echo PROBE_DNS=ok || echo PROBE_DNS=fail
+    ' 2>/dev/null
+}
+
+verify() {
+  echo "==> verifying goal state in namespace $NS"
+
+  # 1. migration Job ran to completion
+  if [ "$(kubectl -n "$NS" get job migrate -o jsonpath='{.status.succeeded}' 2>/dev/null)" = "1" ]; then
+    ok "migrate Job completed"
+  else
+    bad "migrate Job has not completed (does it exist? did the chart even install cleanly?)"
+  fi
+
+  # 2. every Deployment fully Ready
+  for d in backend gateway worker reporter metrics; do
+    want=$(kubectl -n "$NS" get deploy "$d" -o jsonpath='{.spec.replicas}' 2>/dev/null)
+    have=$(kubectl -n "$NS" get deploy "$d" -o jsonpath='{.status.readyReplicas}' 2>/dev/null)
+    if [ -n "$want" ] && [ "${have:-0}" = "$want" ]; then
+      ok "deployment $d: $have/$want ready"
+    else
+      bad "deployment $d: ${have:-0}/${want:-?} ready"
+    fi
+  done
+
+  # 3. nothing is crash-looping
+  loops=$(kubectl -n "$NS" get pods \
+    -o jsonpath='{range .items[*]}{.metadata.name} {.status.containerStatuses[0].state.waiting.reason}{"\n"}{end}' 2>/dev/null \
+    | grep -c CrashLoopBackOff)
+  if [ "${loops:-0}" -eq 0 ]; then
+    ok "no pods in CrashLoopBackOff"
+  else
+    bad "$loops pod(s) in CrashLoopBackOff"
+  fi
+
+  # 4. the reporter ServiceAccount really may list pods
+  if kubectl auth can-i list pods -n "$NS" \
+      --as="system:serviceaccount:${NS}:reporter" >/dev/null 2>&1; then
+    ok "ServiceAccount ${NS}/reporter can list pods"
+  else
+    bad "ServiceAccount ${NS}/reporter cannot list pods"
+  fi
+
+  # 5. in-cluster behaviour: backend serves, gateway aggregates, reporter reports
+  probe=$(incluster_probe)
+  case "$probe" in *PROBE_BACKEND=ok*) ok "backend answers on http://backend:8080/healthz";;
+                   *) bad "backend does not answer on http://backend:8080/healthz";; esac
+  case "$probe" in *'"backend":"ok"'*) ok "gateway /status reports backend=ok";;
+                   *) bad "gateway /status does not report backend=ok";; esac
+  if printf '%s' "$probe" | grep -q 'PROBE_REPORTER_BODY=.*"pods":[1-9]'; then
+    ok "reporter /report sees pods in the namespace"
+  else
+    bad "reporter /report does not return a pod count"
+  fi
+
+  echo ""
+  if [ "$FAIL" -eq 0 ]; then
+    echo "${C_GREEN}ALL GREEN${C_OFF} — $PASS/$((PASS+FAIL)) checks passed. This part is done."
+  else
+    echo "${C_RED}$FAIL check(s) failing${C_OFF}, $PASS passing. Keep digging — every failure is a symptom."
+  fi
+  exit "$FAIL"
+}
+
+reset() {
+  echo "==> removing the lab"
+  helm uninstall "$RELEASE" -n "$NS" 2>/dev/null || true
+  kubectl delete namespace "$NS" --ignore-not-found --wait=true
+  echo "Removed. Note: this does NOT restore the chart files — use git for that."
+}
+
+case "${1:-}" in
+  up)     up ;;
+  verify) verify ;;
+  reset)  reset ;;
+  *) echo "usage: $0 up|verify|reset"; exit 2 ;;
+esac
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mcat broken-chart/templates/backend.yaml[27m[39D[27mc[27ma[27mt[27m [27mb[27mr[27mo[27mk[27me[27mn[27m-[27mc[27mh[27ma[27mr[27mt[27m/[27mt[27me[27mm[27mp[27ml[27ma[27mt[27me[27ms[27m/[27mb[27ma[27mc[27mk[27me[27mn[27md[27m.[27my[27ma[27mm[27ml[?2004l
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  labels:
+    app: backend
+    {{- include "lab.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.backend.replicas }}
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+        {{- include "lab.labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: backend
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.common.port }}
+          env:
+            {{- range $name, $value := .Values.backend.env }}
+            - name: {{ $name }}
+              value: {{ $value | quote }}
+            {{- end }}
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.common.port }}
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            timeoutSeconds: 3
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            {{- toYaml .Values.backend.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  labels:
+    app: backend
+    {{- include "lab.labels" . | nindent 4 }}
+spec:
+  selector:
+    app: backend
+  ports:
+    - name: http
+      port: 8080
+      targetPort: {{ .Values.common.port }}
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mcat broken-chart/templates/gateway.yaml[27m[39D[27mc[27ma[27mt[27m [27mb[27mr[27mo[27mk[27me[27mn[27m-[27mc[27mh[27ma[27mr[27mt[27m/[27mt[27me[27mm[27mp[27ml[27ma[27mt[27me[27ms[27m/[27mg[27ma[27mt[27me[27mw[27ma[27my[27m.[27my[27ma[27mm[27ml[?2004l
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway
+  labels:
+    app: gateway
+    {{- include "lab.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.gateway.replicas }}
+  selector:
+    matchLabels:
+      app: gateway
+  template:
+    metadata:
+      labels:
+        app: gateway
+        {{- include "lab.labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: gateway
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.common.port }}
+          env:
+            {{- range $name, $value := .Values.gateway.env }}
+            - name: {{ $name }}
+              value: {{ $value | quote }}
+            {{- end }}
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.common.port }}
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            timeoutSeconds: 3
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            {{- toYaml .Values.gateway.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway
+  labels:
+    app: gateway
+    {{- include "lab.labels" . | nindent 4 }}
+spec:
+  selector:
+    app: gateway
+  ports:
+    - name: http
+      port: 80
+      targetPort: {{ .Values.common.port }}
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mcat broken-chart/templates/worker.yaml[27m[38D[27mc[27ma[27mt[27m [27mb[27mr[27mo[27mk[27me[27mn[27m-[27mc[27mh[27ma[27mr[27mt[27m/[27mt[27me[27mm[27mp[27ml[27ma[27mt[27me[27ms[27m/[27mw[27mo[27mr[27mk[27me[27mr[27m.[27my[27ma[27mm[27ml[?2004l
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+  labels:
+    app: worker
+    {{- include "lab.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.worker.replicas }}
+  selector:
+    matchLabels:
+      app: worker
+  template:
+    metadata:
+      labels:
+        app: worker
+        {{- include "lab.labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: worker
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.common.port }}
+          env:
+            {{- range $name, $value := .Values.worker.env }}
+            - name: {{ $name }}
+              value: {{ $value | quote }}
+            {{- end }}
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.common.port }}
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            timeoutSeconds: 3
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            {{- toYaml .Values.worker.resources | nindent 12 }}
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mcat broken-chart/templates/reporter.yaml[27m[40D[27mc[27ma[27mt[27m [27mb[27mr[27mo[27mk[27me[27mn[27m-[27mc[27mh[27ma[27mr[27mt[27m/[27mt[27me[27mm[27mp[27ml[27ma[27mt[27me[27ms[27m/[27mr[27me[27mp[27mo[27mr[27mt[27me[27mr[27m.[27my[27ma[27mm[27ml[?2004l
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reporter
+  labels:
+    app: reporter
+    {{- include "lab.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.reporter.replicas }}
+  selector:
+    matchLabels:
+      app: reporter
+  template:
+    metadata:
+      labels:
+        app: reporter
+        {{- include "lab.labels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ .Values.reporter.serviceAccountName }}
+      containers:
+        - name: reporter
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.common.port }}
+          env:
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            {{- range $name, $value := .Values.reporter.env }}
+            - name: {{ $name }}
+              value: {{ $value | quote }}
+            {{- end }}
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.common.port }}
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            timeoutSeconds: 3
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            {{- toYaml .Values.reporter.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: reporter
+  labels:
+    app: reporter
+    {{- include "lab.labels" . | nindent 4 }}
+spec:
+  selector:
+    app: reporter
+  ports:
+    - name: http
+      port: 8080
+      targetPort: {{ .Values.common.port }}
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mcat broken-chart/templates/metrics.yaml[27m[39D[27mc[27ma[27mt[27m [27mb[27mr[27mo[27mk[27me[27mn[27m-[27mc[27mh[27ma[27mr[27mt[27m/[27mt[27me[27mm[27mp[27ml[27ma[27mt[27me[27ms[27m/[27mm[27me[27mt[27mr[27mi[27mc[27ms[27m.[27my[27ma[27mm[27ml[?2004l
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: metrics
+  labels:
+    app: metrics
+    {{- include "lab.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.metrics.replicas }}
+  selector:
+    matchLabels:
+      app: metrics
+  template:
+    metadata:
+      labels:
+        app: metrics
+        {{- include "lab.labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: metrics
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.common.port }}
+          env:
+            {{- range $name, $value := .Values.metrics.env }}
+            - name: {{ $name }}
+              value: {{ $value | quote }}
+            {{- end }}
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.common.port }}
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            timeoutSeconds: 3
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            {{- toYaml .Values.metrics.resources | nindent 12 }}
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mcat broken-chart/values.yaml[27m[28D[27mc[27ma[27mt[27m [27mb[27mr[27mo[27mk[27me[27mn[27m-[27mc[27mh[27ma[27mr[27mt[27m/[27mv[27ma[27ml[27mu[27me[27ms[27m.[27my[27ma[27mm[27ml[?2004l
+# Debug lab — values.
+#
+# Lab rules (also in the assignment):
+#   * You may change anything in this chart — values or templates.
+#   * You may NOT change image.repository or image.tag.
+#   * You may NOT modify anything under ../cluster-state/.
+#   * You may NOT delete workloads to make a symptom disappear.
+
+image:
+  repository: docker.io/ebinterview/eb-debug-app
+  tag: "1.0.1"
+  pullPolicy: IfNotPresent
+
+common:
+  # Every workload serves plain HTTP on this port.
+  port: 8080
+
+backend:
+  replicas: 1
+  env:
+    APP_MODE: "api"
+    APP_NAME: "backend"
+    VERSION: "2.0.0"
+  resources:
+    requests:
+      cpu: "50m"
+      memory: "64Mi"
+    limits:
+      cpu: "200m"
+      memory: "128Mi"
+
+gateway:
+  replicas: 1
+  env:
+    APP_MODE: "gateway"
+    APP_NAME: "gateway"
+    VERSION: "2.0.0"
+    BACKEND_URL: "http://backend.default.svc:8080"
+  resources:
+    requests:
+      cpu: "50m"
+      memory: "64Mi"
+    limits:
+      cpu: "200m"
+      memory: "128Mi"
+
+worker:
+  replicas: 1
+  env:
+    APP_MODE: "worker"
+    APP_NAME: "worker"
+    VERSION: "2.0.0"
+  resources:
+    requests:
+      cpu: "50m"
+      memory: "64Mi"
+    limits:
+      cpu: "200m"
+      memory: "128Mi"
+
+reporter:
+  replicas: 1
+  serviceAccountName: reporter
+  env:
+    APP_MODE: "reporter"
+    APP_NAME: "reporter"
+    VERSION: "2.0.0"
+  resources:
+    requests:
+      cpu: "50m"
+      memory: "64Mi"
+    limits:
+      cpu: "200m"
+      memory: "128Mi"
+
+metrics:
+  replicas: 1
+  env:
+    APP_MODE: "api"
+    APP_NAME: "metrics"
+    VERSION: "2.0.0"
+  resources:
+    requests:
+      cpu: "2"
+      memory: "64Mi"
+    limits:
+      cpu: "4"
+      memory: "128Mi"
+
+migrate:
+  enabled: true
+  backoffLimit: 2
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mdocker pull ebinterview/eb-debug-app:1.0.1[27m[42D[27md[27mo[27mc[27mk[27me[27mr[27m [27mp[27mu[27ml[27ml[27m [27me[27mb[27mi[27mn[27mt[27me[27mr[27mv[27mi[27me[27mw[27m/[27me[27mb[27m-[27md[27me[27mb[27mu[27mg[27m-[27ma[27mp[27mp[27m:[27m1[27m.[27m0[27m.[27m1[?2004l
+1.0.1: Pulling from ebinterview/eb-debug-app
+
+[1A[2Kad7fcb30079d: Pulling fs layer [1B
+[1A[2K2e4cf50eeb92: Pulling fs layer [1B
+[1A[2Kc36c4b61cfba: Pulling fs layer [1B
+[1A[2K0f8b424aa0b9: Pulling fs layer [1B
+[1A[2Ke1089d61b200: Pulling fs layer [1B
+[1A[2Kd557676654e5: Pulling fs layer [1B
+[1A[2Kd82bc7a76a83: Pulling fs layer [1B
+[1A[2Ka0a865287d07: Pulling fs layer [1B
+[1A[2K6b72b81ed966: Pulling fs layer [1B
+[1A[2K6cdd517ba905: Pulling fs layer [1B
+[1A[2K68e4cd60e60f: Pulling fs layer [1B
+[1A[2K0783a66ae749: Pulling fs layer [1B
+[1A[2Kefae86a3fb38: Pulling fs layer [1B[13A[2Kad7fcb30079d: Download complete [13B[13A[2Kad7fcb30079d: Extracting 1 s[13B[13A[2Kad7fcb30079d: Pull complete [13B[12A[2K2e4cf50eeb92: Download complete [12B[12A[2K2e4cf50eeb92: Pull complete [12B[10A[2K0f8b424aa0b9: Download complete [10B[11A[2Kc36c4b61cfba: Download complete [11B[8A[2Kd557676654e5: Download complete [8B[11A[2Kc36c4b61cfba: Extracting 1 s[11B[11A[2Kc36c4b61cfba: Pull complete [11B[7A[2Kd82bc7a76a83: Download complete [7B[1A[2Kefae86a3fb38: Download complete [1B[4A[2K6cdd517ba905: Download complete [4B[2A[2K0783a66ae749: Download complete [2B[9A[2Ke1089d61b200: Download complete [9B[9A[2Ke1089d61b200: Extracting 1 s[9B[6A[2Ka0a865287d07: Downloading [====================>                              ]  1.049MB/2.552MB[6B[10A[2K0f8b424aa0b9: Pull complete [10B[8A[2Kd557676654e5: Pull complete [8B[7A[2Kd82bc7a76a83: Pull complete [7B[9A[2Ke1089d61b200: Pull complete [9B[6A[2Ka0a865287d07: Download complete [6B[3A[2K68e4cd60e60f: Downloading [==================================================>]     168B/168B[3B[3A[2K68e4cd60e60f: Download complete [3B[5A[2K6b72b81ed966: Download complete [5B[1A[2Kefae86a3fb38: Pull complete [1B[4A[2K6cdd517ba905: Pull complete [4B[2A[2K0783a66ae749: Pull complete [2B[6A[2Ka0a865287d07: Pull complete [6B[3A[2K68e4cd60e60f: Pull complete [3B[5A[2K6b72b81ed966: Pull complete [5BDigest: sha256:17f41698c10f5c18693339281b92d3cfef16d9fcffcad440a24e7ab19e05c443
+Status: Downloaded newer image for ebinterview/eb-debug-app:1.0.1
+docker.io/ebinterview/eb-debug-app:1.0.1
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mdocker image inspect ebinterview/eb-debug-app:1.0.1 --format '{{.Config.U[7ms[7mer}}'[27m[K[A[41C[27md[27mo[27mc[27mk[27me[27mr[27m [27mi[27mm[27ma[27mg[27me[27m [27mi[27mn[27ms[27mp[27me[27mc[27mt[27m [27me[27mb[27mi[27mn[27mt[27me[27mr[27mv[27mi[27me[27mw[27m/[27me[27mb[27m-[27md[27me[27mb[27mu[27mg[27m-[27ma[27mp[27mp[27m:[27m1[27m.[27m0[27m.[27m1[27m [27m-[27m-[27mf[27mo[27mr[27mm[27ma[27mt[27m [27m'[27m{[27m{[27m.[27mC[27mo[27mn[27mf[27mi[27mg[27m.[27mUs[27me[27mr[27m}[27m}[27m'[?2004l
+nonroot
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mdocker create --name inspect-debug ebinterview/eb-debug-app:1.0.1[27m[65D[27md[27mo[27mc[27mk[27me[27mr[27m [27mc[27mr[27me[27ma[27mt[27me[27m [27m-[27m-[27mn[27ma[27mm[27me[27m [27mi[27mn[27ms[27mp[27me[27mc[27mt[27m-[27md[27me[27mb[27mu[27mg[27m [27me[27mb[27mi[27mn[27mt[27me[27mr[27mv[27mi[27me[27mw[27m/[27me[27mb[27m-[27md[27me[27mb[27mu[27mg[27m-[27ma[27mp[27mp[27m:[27m1[27m.[27m0[27m.[27m1[?2004l
+WARNING: The requested image's platform (linux/amd64) does not match the detected host platform (linux/arm64/v8) and no specific platform was requested
+c4b31ef2920deee27009455837d2a8fe43ca4c9646912f51453ca6a1e06e3e40
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mdocker cp inspect-debug:/etc/passwd ./image-passwd.txt[27m[54D[27md[27mo[27mc[27mk[27me[27mr[27m [27mc[27mp[27m [27mi[27mn[27ms[27mp[27me[27mc[27mt[27m-[27md[27me[27mb[27mu[27mg[27m:[27m/[27me[27mt[27mc[27m/[27mp[27ma[27ms[27ms[27mw[27md[27m [27m.[27m/[27mi[27mm[27ma[27mg[27me[27m-[27mp[27ma[27ms[27ms[27mw[27md[27m.[27mt[27mx[27mt[?2004l
+Successfully copied 149B (transferred 2.05kB) to /Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab/image-passwd.txt
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mcat image-passwd.txt[27m[20D[27mc[27ma[27mt[27m [27mi[27mm[27ma[27mg[27me[27m-[27mp[27ma[27ms[27ms[27mw[27md[27m.[27mt[27mx[27mt[?2004l
+root:x:0:0:root:/root:/sbin/nologin
+nobody:x:65534:65534:nobody:/nonexistent:/sbin/nologin
+nonroot:x:65532:65532:nonroot:/home/nonroot:/sbin/nologin
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mdocker rm inspect-debug[27m[23D[27md[27mo[27mc[27mk[27me[27mr[27m [27mr[27mm[27m [27mi[27mn[27ms[27mp[27me[27mc[27mt[27m-[27md[27me[27mb[27mu[27mg[?2004l
+inspect-debug
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mcat cluster-state/limits.yaml[27m[29D[27mc[27ma[27mt[27m [27mc[27ml[27mu[27ms[27mt[27me[27mr[27m-[27ms[27mt[27ma[27mt[27me[27m/[27ml[27mi[27mm[27mi[27mt[27ms[27m.[27my[27ma[27mm[27ml' [?2004l
+# Part of the lab environment. DO NOT MODIFY — the grading harness re-applies
+# the pristine copy of everything in cluster-state/ before evaluating your
+# chart, so changes here cannot fix anything and will be flagged.
+#
+# This LimitRange mirrors the guardrails on our shared clusters: sane defaults
+# for pods that don't specify resources, and a hard per-container ceiling.
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: debug-lab-guardrails
+  namespace: debug-lab
+spec:
+  limits:
+    - type: Container
+      defaultRequest:
+        cpu: 50m
+        memory: 64Mi
+      default:
+        cpu: 200m
+        memory: 128Mi
+      max:
+        cpu: "1"
+        memory: 512Mi
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mcat cluster-state/namespace.yaml[27m[32D[27mc[27ma[27mt[27m [27mc[27ml[27mu[27ms[27mt[27me[27mr[27m-[27ms[27mt[27ma[27mt[27me[27m/[27mn[27ma[27mm[27me[27ms[27mp[27ma[27mc[27me[27m.[27my[27ma[27mm[27ml'=  [?2004l
+# Part of the lab environment. DO NOT MODIFY — the grading harness re-applies
+# the pristine copy of everything in cluster-state/ before evaluating your
+# chart, so changes here cannot fix anything and will be flagged.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: debug-lab
+  labels:
+    app.kubernetes.io/part-of: eb-debug-lab
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mcat broken-chart/templates/rbac.yaml[27m[36D[27mc[27ma[27mt[27m [27mb[27mr[27mo[27mk[27me[27mn[27m-[27mc[27mh[27ma[27mr[27mt[27m/[27mt[27me[27mm[27mp[27ml[27ma[27mt[27me[27ms[27m/[27mr[27mb[27ma[27mc[27m.[27my[27ma[27mm[27ml' [?2004l
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: reporter
+  labels:
+    app: reporter
+    {{- include "lab.labels" . | nindent 4 }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: reporter-read
+  labels:
+    app: reporter
+    {{- include "lab.labels" . | nindent 4 }}
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: reporter-read
+  labels:
+    app: reporter
+    {{- include "lab.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: reporter-read
+subjects:
+  - kind: ServiceAccount
+    name: default
+    namespace: {{ .Release.Namespace }}
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mcat FINDINGS.md[27m[15D[27mc[27ma[27mt[27m [27mF[27mI[27mN[27mD[27mI[27mN[27mG[27mS[27m.[27mm[27md[?2004l
+# Findings — Part 4 debug lab
+
+Fill in one entry per defect you find. Paste the *actual* output you saw —
+we cross-check it against your session recording and your git diff, and the
+diagnostic path matters more to us than the fix itself.
+
+Before you start investigating, begin recording:
+`script -q part4-session.log` (or `asciinema rec part4-session.cast`), and
+commit that file alongside this one.
+
+---
+
+## Defect 1
+
+**Symptom** (what you observed — paste the real command output):
+
+**Cause** (the actual root cause, not the symptom restated):
+
+**Fix** (what you changed, and why this over alternatives):
+
+**How I found it** (the sequence of commands/reasoning that led you here):
+
+---
+
+## Defect 2
+
+**Symptom:**
+
+**Cause:**
+
+**Fix:**
+
+**How I found it:**
+
+---
+
+## Defect 3
+
+**Symptom:**
+
+**Cause:**
+
+**Fix:**
+
+**How I found it:**
+
+---
+
+## Defect 4
+
+**Symptom:**
+
+**Cause:**
+
+**Fix:**
+
+**How I found it:**
+
+---
+
+## Defect 5
+
+**Symptom:**
+
+**Cause:**
+
+**Fix:**
+
+**How I found it:**
+
+---
+
+## Defect 6
+
+**Symptom:**
+
+**Cause:**
+
+**Fix:**
+
+**How I found it:**
+
+---
+
+If you ran out of time on any defect, say so here and describe what you would
+have tried next — that section is read carefully and counts in your favour.
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mkubectl get resourcequota,limitrange -n debug-lab[27m[49D[27mk[27mu[27mb[27me[27mc[27mt[27ml[27m [27mg[27me[27mt[27m [27mr[27me[27ms[27mo[27mu[27mr[27mc[27me[27mq[27mu[27mo[27mt[27ma[27m,[27ml[27mi[27mm[27mi[27mt[27mr[27ma[27mn[27mg[27me[27m [27m-[27mn[27m [27md[27me[27mb[27mu[27mg[27m-[27ml[27ma[27mb[?2004l
+No resources found in debug-lab namespace.
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mkubectl apply -f cluster-state/[27m[31D[27mk[27mu[27mb[27me[27mc[27mt[27ml[27m [27ma[27mp[27mp[27ml[27my[27m [27m-[27mf[27m [27mc[27ml[27mu[27ms[27mt[27me[27mr[27m-[27ms[27mt[27ma[27mt[27me[27m/[?2004l
+limitrange/debug-lab-guardrails created
+namespace/debug-lab unchanged
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mkubectl get resourcequota,limitrange -n debug-lab[27m[49D[27mk[27mu[27mb[27me[27mc[27mt[27ml[27m [27mg[27me[27mt[27m [27mr[27me[27ms[27mo[27mu[27mr[27mc[27me[27mq[27mu[27mo[27mt[27ma[27m,[27ml[27mi[27mm[27mi[27mt[27mr[27ma[27mn[27mg[27me[27m [27m-[27mn[27m [27md[27me[27mb[27mu[27mg[27m-[27ml[27ma[27mb[?2004l
+NAME                              CREATED AT
+limitrange/debug-lab-guardrails   2026-11-06T13:21:58Z
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mcat broken-chart/Chart.yaml[27m[27D[27mc[27ma[27mt[27m [27mb[27mr[27mo[27mk[27me[27mn[27m-[27mc[27mh[27ma[27mr[27mt[27m/[27mC[27mh[27ma[27mr[27mt[27m.[27my[27ma[27mm[27ml[?2004l
+apiVersion: v2
+name: debug-lab
+description: >-
+  Enterprise Bot debug lab — a small platform slice (gateway, backend, worker,
+  reporter, metrics, and a migration Job) that is currently broken in six ways.
+type: application
+version: 2.0.0
+appVersion: "1.0.1"
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mcat broken-chart/templates/_helpers.tpl[27m[39D[27mc[27ma[27mt[27m [27mb[27mr[27mo[27mk[27me[27mn[27m-[27mc[27mh[27ma[27mr[27mt[27m/[27mt[27me[27mm[27mp[27ml[27ma[27mt[27me[27ms[27m/[27m_[27mh[27me[27ml[27mp[27me[27mr[27ms[27m.[27mt[27mp[27ml[?2004l
+{{- define "lab.labels" -}}
+app.kubernetes.io/part-of: eb-debug-lab
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+{{- end }}
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mhelm template debug-lab ./broken-chart -n debug-lab[27m[51D[27mh[27me[27ml[27mm[27m [27mt[27me[27mm[27mp[27ml[27ma[27mt[27me[27m [27md[27me[27mb[27mu[27mg[27m-[27ml[27ma[27mb[27m [27m.[27m/[27mb[27mr[27mo[27mk[27me[27mn[27m-[27mc[27mh[27ma[27mr[27mt[27m [27m-[27mn[27m [27md[27me[27mb[27mu[27mg[27m-[27ml[27ma[27mb[?2004l
+---
+# Source: debug-lab/templates/rbac.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: reporter
+  labels:
+    app: reporter
+    app.kubernetes.io/part-of: eb-debug-lab
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: debug-lab-2.0.0
+
+---
+# Source: debug-lab/templates/rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: reporter-read
+  labels:
+    app: reporter
+    app.kubernetes.io/part-of: eb-debug-lab
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: debug-lab-2.0.0
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list"]
+
+---
+# Source: debug-lab/templates/rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: reporter-read
+  labels:
+    app: reporter
+    app.kubernetes.io/part-of: eb-debug-lab
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: debug-lab-2.0.0
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: reporter-read
+subjects:
+  - kind: ServiceAccount
+    name: default
+    namespace: debug-lab
+
+---
+# Source: debug-lab/templates/backend.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  labels:
+    app: backend
+    app.kubernetes.io/part-of: eb-debug-lab
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: debug-lab-2.0.0
+spec:
+  selector:
+    app: backend
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+
+---
+# Source: debug-lab/templates/gateway.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway
+  labels:
+    app: gateway
+    app.kubernetes.io/part-of: eb-debug-lab
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: debug-lab-2.0.0
+spec:
+  selector:
+    app: gateway
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+
+---
+# Source: debug-lab/templates/reporter.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: reporter
+  labels:
+    app: reporter
+    app.kubernetes.io/part-of: eb-debug-lab
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: debug-lab-2.0.0
+spec:
+  selector:
+    app: reporter
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+
+---
+# Source: debug-lab/templates/backend.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  labels:
+    app: backend
+    app.kubernetes.io/part-of: eb-debug-lab
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: debug-lab-2.0.0
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+        app.kubernetes.io/part-of: eb-debug-lab
+        app.kubernetes.io/managed-by: Helm
+        helm.sh/chart: debug-lab-2.0.0
+    spec:
+      containers:
+        - name: backend
+          image: "docker.io/ebinterview/eb-debug-app:1.0.1"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: APP_MODE
+              value: "api"
+            - name: APP_NAME
+              value: "backend"
+            - name: VERSION
+              value: "2.0.0"
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            timeoutSeconds: 3
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            limits:
+              cpu: 200m
+              memory: 128Mi
+            requests:
+              cpu: 50m
+              memory: 64Mi
+
+---
+# Source: debug-lab/templates/gateway.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway
+  labels:
+    app: gateway
+    app.kubernetes.io/part-of: eb-debug-lab
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: debug-lab-2.0.0
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gateway
+  template:
+    metadata:
+      labels:
+        app: gateway
+        app.kubernetes.io/part-of: eb-debug-lab
+        app.kubernetes.io/managed-by: Helm
+        helm.sh/chart: debug-lab-2.0.0
+    spec:
+      containers:
+        - name: gateway
+          image: "docker.io/ebinterview/eb-debug-app:1.0.1"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: APP_MODE
+              value: "gateway"
+            - name: APP_NAME
+              value: "gateway"
+            - name: BACKEND_URL
+              value: "http://backend.default.svc:8080"
+            - name: VERSION
+              value: "2.0.0"
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            timeoutSeconds: 3
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            limits:
+              cpu: 200m
+              memory: 128Mi
+            requests:
+              cpu: 50m
+              memory: 64Mi
+
+---
+# Source: debug-lab/templates/metrics.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: metrics
+  labels:
+    app: metrics
+    app.kubernetes.io/part-of: eb-debug-lab
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: debug-lab-2.0.0
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: metrics
+  template:
+    metadata:
+      labels:
+        app: metrics
+        app.kubernetes.io/part-of: eb-debug-lab
+        app.kubernetes.io/managed-by: Helm
+        helm.sh/chart: debug-lab-2.0.0
+    spec:
+      containers:
+        - name: metrics
+          image: "docker.io/ebinterview/eb-debug-app:1.0.1"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: APP_MODE
+              value: "api"
+            - name: APP_NAME
+              value: "metrics"
+            - name: VERSION
+              value: "2.0.0"
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            timeoutSeconds: 3
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            limits:
+              cpu: "4"
+              memory: 128Mi
+            requests:
+              cpu: "2"
+              memory: 64Mi
+
+---
+# Source: debug-lab/templates/reporter.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reporter
+  labels:
+    app: reporter
+    app.kubernetes.io/part-of: eb-debug-lab
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: debug-lab-2.0.0
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: reporter
+  template:
+    metadata:
+      labels:
+        app: reporter
+        app.kubernetes.io/part-of: eb-debug-lab
+        app.kubernetes.io/managed-by: Helm
+        helm.sh/chart: debug-lab-2.0.0
+    spec:
+      serviceAccountName: reporter
+      containers:
+        - name: reporter
+          image: "docker.io/ebinterview/eb-debug-app:1.0.1"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: APP_MODE
+              value: "reporter"
+            - name: APP_NAME
+              value: "reporter"
+            - name: VERSION
+              value: "2.0.0"
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            timeoutSeconds: 3
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            limits:
+              cpu: 200m
+              memory: 128Mi
+            requests:
+              cpu: 50m
+              memory: 64Mi
+
+---
+# Source: debug-lab/templates/worker.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+  labels:
+    app: worker
+    app.kubernetes.io/part-of: eb-debug-lab
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: debug-lab-2.0.0
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: worker
+  template:
+    metadata:
+      labels:
+        app: worker
+        app.kubernetes.io/part-of: eb-debug-lab
+        app.kubernetes.io/managed-by: Helm
+        helm.sh/chart: debug-lab-2.0.0
+    spec:
+      containers:
+        - name: worker
+          image: "docker.io/ebinterview/eb-debug-app:1.0.1"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: APP_MODE
+              value: "worker"
+            - name: APP_NAME
+              value: "worker"
+            - name: VERSION
+              value: "2.0.0"
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            timeoutSeconds: 3
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            limits:
+              cpu: 200m
+              memory: 128Mi
+            requests:
+              cpu: 50m
+              memory: 64Mi
+
+---
+# Source: debug-lab/templates/migrate-job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migrate
+  labels:
+    app: migrate
+    app.kubernetes.io/part-of: eb-debug-lab
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: debug-lab-2.0.0
+spec:
+  backoffLimit: 2
+  template:
+    metadata:
+      labels:
+        app: migrate
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: migrate
+          image: "docker.io/ebinterview/eb-debug-app:1.0.1"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: APP_MODE
+              value: "migrate"
+            - name: APP_NAME
+              value: "migrate"
+            - name: VERSION
+              value: "2.0.0"
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mkubectl describe pod -l app=metrics -n debug-lab[27m[48D[27mk[27mu[27mb[27me[27mc[27mt[27ml[27m [27md[27me[27ms[27mc[27mr[27mi[27mb[27me[27m [27mp[27mo[27md[27m [27m-[27ml[27m [27ma[27mp[27mp[27m=[27mm[27me[27mt[27mr[27mi[27mc[27ms[27m [27m-[27mn[27m [27md[27me[27mb[27mu[27mg[27m-[27ml[27ma[27mb[?2004l
+Name:             metrics-547dccf75-ddbmx
+Namespace:        debug-lab
+Priority:         0
+Service Account:  default
+Node:             demo-control-plane/172.18.0.2
+Start Time:       Fri, 06 Nov 2026 18:38:20 +0530
+Labels:           app=metrics
+                  app.kubernetes.io/managed-by=Helm
+                  app.kubernetes.io/part-of=eb-debug-lab
+                  helm.sh/chart=debug-lab-2.0.0
+                  pod-template-hash=547dccf75
+Annotations:      <none>
+Status:           Pending
+IP:               10.244.0.12
+IPs:
+  IP:           10.244.0.12
+Controlled By:  ReplicaSet/metrics-547dccf75
+Containers:
+  metrics:
+    Container ID:   
+    Image:          docker.io/ebinterview/eb-debug-app:1.0.1
+    Image ID:       
+    Port:           8080/TCP (http)
+    Host Port:      0/TCP (http)
+    State:          Waiting
+      Reason:       CreateContainerConfigError
+    Ready:          False
+    Restart Count:  0
+    Limits:
+      cpu:     4
+      memory:  128Mi
+    Requests:
+      cpu:      2
+      memory:   64Mi
+    Readiness:  http-get http://:8080/healthz delay=3s timeout=3s period=5s #success=1 #failure=3
+    Environment:
+      APP_MODE:  api
+      APP_NAME:  metrics
+      VERSION:   2.0.0
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-l6fn2 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-l6fn2:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                 From               Message
+  ----     ------     ----                ----               -------
+  Normal   Scheduled  16m                 default-scheduler  Successfully assigned debug-lab/metrics-547dccf75-ddbmx to demo-control-plane
+  Normal   Pulling    16m                 kubelet            spec.containers{metrics}: Pulling image "docker.io/ebinterview/eb-debug-app:1.0.1"
+  Normal   Pulled     16m                 kubelet            spec.containers{metrics}: Successfully pulled image "docker.io/ebinterview/eb-debug-app:1.0.1" in 7.791s (7.791s including waiting). Image size: 3279587 bytes.
+  Warning  Failed     81s (x72 over 16m)  kubelet            spec.containers{metrics}: Error: container has runAsNonRoot and image has non-numeric user (nonroot), cannot verify user is non-root (pod: "metrics-547dccf75-ddbmx_debug-lab(cd07064c-f229-4115-a7bf-0980887f9afc)", container: metrics)
+  Normal   Pulled     81s (x71 over 16m)  kubelet            spec.containers{metrics}: Container image "docker.io/ebinterview/eb-debug-app:1.0.1" already present on machine and can be accessed by the pod
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mkubectl auth can-i list pods -n debug-lab --as=system:serviceaccount:debu[7mg[7m-lab:reporter[27m[K[A[33C[27mk[27mu[27mb[27me[27mc[27mt[27ml[27m [27ma[27mu[27mt[27mh[27m [27mc[27ma[27mn[27m-[27mi[27m [27ml[27mi[27ms[27mt[27m [27mp[27mo[27md[27ms[27m [27m-[27mn[27m [27md[27me[27mb[27mu[27mg[27m-[27ml[27ma[27mb[27m [27m-[27m-[27ma[27ms[27m=[27ms[27my[27ms[27mt[27me[27mm[27m:[27ms[27me[27mr[27mv[27mi[27mc[27me[27ma[27mc[27mc[27mo[27mu[27mn[27mt[27m:[27md[27me[27mb[27mug[27m-[27ml[27ma[27mb[27m:[27mr[27me[27mp[27mo[27mr[27mt[27me[27mr[?2004l
+no
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mkubectl logs deployment/gateway -n debug-lab[27m[44D[27mk[27mu[27mb[27me[27mc[27mt[27ml[27m [27ml[27mo[27mg[27ms[27m [27md[27me[27mp[27ml[27mo[27my[27mm[27me[27mn[27mt[27m/[27mg[27ma[27mt[27me[27mw[27ma[27my[27m [27m-[27mn[27m [27md[27me[27mb[27mu[27mg[27m-[27ml[27ma[27mb[?2004l
+Error from server (BadRequest): container "gateway" in pod "gateway-5cbdcd4bf8-mv9qz" is waiting to start: CreateContainerConfigError
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mkubectl logs deployment/backend -n debug-lab[27m[44D[27mk[27mu[27mb[27me[27mc[27mt[27ml[27m [27ml[27mo[27mg[27ms[27m [27md[27me[27mp[27ml[27mo[27my[27mm[27me[27mn[27mt[27m/[27mb[27ma[27mc[27mk[27me[27mn[27md[27m [27m-[27mn[27m [27md[27me[27mb[27mu[27mg[27m-[27ml[27ma[27mb[?2004l
+Error from server (BadRequest): container "backend" in pod "backend-7948fd6b4b-6spgv" is waiting to start: CreateContainerConfigError
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mkubectl get events -n debug-lab --sort-by='.lastTimestamp'[27m[58D[27mk[27mu[27mb[27me[27mc[27mt[27ml[27m [27mg[27me[27mt[27m [27me[27mv[27me[27mn[27mt[27ms[27m [27m-[27mn[27m [27md[27me[27mb[27mu[27mg[27m-[27ml[27ma[27mb[27m [27m-[27m-[27ms[27mo[27mr[27mt[27m-[27mb[27my[27m=[27m'[27m.[27ml[27ma[27ms[27mt[27mT[27mi[27mm[27me[27ms[27mt[27ma[27mm[27mp[27m'[?2004l
+LAST SEEN   TYPE      REASON              OBJECT                           MESSAGE
+17m         Normal    ScalingReplicaSet   deployment/reporter              Scaled up replica set reporter-6f8bff6b8d from 0 to 1
+17m         Normal    Pulling             pod/backend-7948fd6b4b-6spgv     Pulling image "docker.io/ebinterview/eb-debug-app:1.0.1"
+17m         Normal    ScalingReplicaSet   deployment/worker                Scaled up replica set worker-5fcd6b9b6b from 0 to 1
+17m         Normal    SuccessfulCreate    replicaset/worker-5fcd6b9b6b     Created pod: worker-5fcd6b9b6b-zzjgx
+17m         Normal    Pulling             pod/worker-5fcd6b9b6b-zzjgx      Pulling image "docker.io/ebinterview/eb-debug-app:1.0.1"
+17m         Normal    SuccessfulCreate    replicaset/backend-7948fd6b4b    Created pod: backend-7948fd6b4b-6spgv
+17m         Normal    ScalingReplicaSet   deployment/backend               Scaled up replica set backend-7948fd6b4b from 0 to 1
+17m         Normal    Scheduled           pod/gateway-5cbdcd4bf8-mv9qz     Successfully assigned debug-lab/gateway-5cbdcd4bf8-mv9qz to demo-control-plane
+17m         Normal    Scheduled           pod/worker-5fcd6b9b6b-zzjgx      Successfully assigned debug-lab/worker-5fcd6b9b6b-zzjgx to demo-control-plane
+17m         Normal    Pulling             pod/gateway-5cbdcd4bf8-mv9qz     Pulling image "docker.io/ebinterview/eb-debug-app:1.0.1"
+17m         Normal    SuccessfulCreate    replicaset/gateway-5cbdcd4bf8    Created pod: gateway-5cbdcd4bf8-mv9qz
+17m         Normal    SuccessfulCreate    replicaset/reporter-6f8bff6b8d   Created pod: reporter-6f8bff6b8d-stqp8
+17m         Normal    ScalingReplicaSet   deployment/metrics               Scaled up replica set metrics-547dccf75 from 0 to 1
+17m         Normal    ScalingReplicaSet   deployment/gateway               Scaled up replica set gateway-5cbdcd4bf8 from 0 to 1
+17m         Normal    Scheduled           pod/metrics-547dccf75-ddbmx      Successfully assigned debug-lab/metrics-547dccf75-ddbmx to demo-control-plane
+17m         Normal    Pulling             pod/metrics-547dccf75-ddbmx      Pulling image "docker.io/ebinterview/eb-debug-app:1.0.1"
+17m         Normal    Scheduled           pod/backend-7948fd6b4b-6spgv     Successfully assigned debug-lab/backend-7948fd6b4b-6spgv to demo-control-plane
+17m         Normal    Pulling             pod/reporter-6f8bff6b8d-stqp8    Pulling image "docker.io/ebinterview/eb-debug-app:1.0.1"
+17m         Normal    Scheduled           pod/reporter-6f8bff6b8d-stqp8    Successfully assigned debug-lab/reporter-6f8bff6b8d-stqp8 to demo-control-plane
+17m         Normal    SuccessfulCreate    replicaset/metrics-547dccf75     Created pod: metrics-547dccf75-ddbmx
+17m         Normal    Pulled              pod/metrics-547dccf75-ddbmx      Successfully pulled image "docker.io/ebinterview/eb-debug-app:1.0.1" in 7.791s (7.791s including waiting). Image size: 3279587 bytes.
+17m         Normal    Pulled              pod/reporter-6f8bff6b8d-stqp8    Successfully pulled image "docker.io/ebinterview/eb-debug-app:1.0.1" in 2.559s (10.336s including waiting). Image size: 3279587 bytes.
+16m         Normal    Pulled              pod/gateway-5cbdcd4bf8-mv9qz     Successfully pulled image "docker.io/ebinterview/eb-debug-app:1.0.1" in 2.071s (12.405s including waiting). Image size: 3279587 bytes.
+16m         Normal    Pulled              pod/worker-5fcd6b9b6b-zzjgx      Successfully pulled image "docker.io/ebinterview/eb-debug-app:1.0.1" in 2.62s (14.984s including waiting). Image size: 3279587 bytes.
+16m         Normal    Pulled              pod/backend-7948fd6b4b-6spgv     Successfully pulled image "docker.io/ebinterview/eb-debug-app:1.0.1" in 2.07s (17.046s including waiting). Image size: 3279587 bytes.
+2m11s       Normal    Pulled              pod/worker-5fcd6b9b6b-zzjgx      Container image "docker.io/ebinterview/eb-debug-app:1.0.1" already present on machine and can be accessed by the pod
+2m11s       Normal    Pulled              pod/reporter-6f8bff6b8d-stqp8    Container image "docker.io/ebinterview/eb-debug-app:1.0.1" already present on machine and can be accessed by the pod
+2m7s        Normal    Pulled              pod/backend-7948fd6b4b-6spgv     Container image "docker.io/ebinterview/eb-debug-app:1.0.1" already present on machine and can be accessed by the pod
+2m2s        Warning   Failed              pod/metrics-547dccf75-ddbmx      Error: container has runAsNonRoot and image has non-numeric user (nonroot), cannot verify user is non-root (pod: "metrics-547dccf75-ddbmx_debug-lab(cd07064c-f229-4115-a7bf-0980887f9afc)", container: metrics)
+2m2s        Normal    Pulled              pod/metrics-547dccf75-ddbmx      Container image "docker.io/ebinterview/eb-debug-app:1.0.1" already present on machine and can be accessed by the pod
+2m1s        Normal    Pulled              pod/gateway-5cbdcd4bf8-mv9qz     Container image "docker.io/ebinterview/eb-debug-app:1.0.1" already present on machine and can be accessed by the pod
+117s        Warning   Failed              pod/reporter-6f8bff6b8d-stqp8    Error: container has runAsNonRoot and image has non-numeric user (nonroot), cannot verify user is non-root (pod: "reporter-6f8bff6b8d-stqp8_debug-lab(a860ba1a-5386-409c-94bd-6da1ff6e3f58)", container: reporter)
+112s        Warning   Failed              pod/backend-7948fd6b4b-6spgv     Error: container has runAsNonRoot and image has non-numeric user (nonroot), cannot verify user is non-root (pod: "backend-7948fd6b4b-6spgv_debug-lab(75ff6fb9-5e25-41f1-a726-7baee3afd9e9)", container: backend)
+110s        Warning   Failed              pod/gateway-5cbdcd4bf8-mv9qz     Error: container has runAsNonRoot and image has non-numeric user (nonroot), cannot verify user is non-root (pod: "gateway-5cbdcd4bf8-mv9qz_debug-lab(a6c71211-4bdf-4aea-ba91-494620500a74)", container: gateway)
+103s        Warning   Failed              pod/worker-5fcd6b9b6b-zzjgx      Error: container has runAsNonRoot and image has non-numeric user (nonroot), cannot verify user is non-root (pod: "worker-5fcd6b9b6b-zzjgx_debug-lab(ba9f8850-8e5f-41cf-b953-ec19c50d7411)", container: worker)
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mkubectl auth can-i list pods -n debug-lab --as=system:serviceaccount:debu[7mg[7m-lab:reporter[27m[K[A[33C[27mk[27mu[27mb[27me[27mc[27mt[27ml[27m [27ma[27mu[27mt[27mh[27m [27mc[27ma[27mn[27m-[27mi[27m [27ml[27mi[27ms[27mt[27m [27mp[27mo[27md[27ms[27m [27m-[27mn[27m [27md[27me[27mb[27mu[27mg[27m-[27ml[27ma[27mb[27m [27m-[27m-[27ma[27ms[27m=[27ms[27my[27ms[27mt[27me[27mm[27m:[27ms[27me[27mr[27mv[27mi[27mc[27me[27ma[27mc[27mc[27mo[27mu[27mn[27mt[27m:[27md[27me[27mb[27mug[27m-[27ml[27ma[27mb[27m:[27mr[27me[27mp[27mo[27mr[27mt[27me[27mr[?2004l
+no
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mkubectl describe pod -l app=metrics -n debug-lab[27m[48D[27mk[27mu[27mb[27me[27mc[27mt[27ml[27m [27md[27me[27ms[27mc[27mr[27mi[27mb[27me[27m [27mp[27mo[27md[27m [27m-[27ml[27m [27ma[27mp[27mp[27m=[27mm[27me[27mt[27mr[27mi[27mc[27ms[27m [27m-[27mn[27m [27md[27me[27mb[27mu[27mg[27m-[27ml[27ma[27mb[?2004l
+Name:             metrics-547dccf75-ddbmx
+Namespace:        debug-lab
+Priority:         0
+Service Account:  default
+Node:             demo-control-plane/172.18.0.2
+Start Time:       Fri, 06 Nov 2026 18:38:20 +0530
+Labels:           app=metrics
+                  app.kubernetes.io/managed-by=Helm
+                  app.kubernetes.io/part-of=eb-debug-lab
+                  helm.sh/chart=debug-lab-2.0.0
+                  pod-template-hash=547dccf75
+Annotations:      <none>
+Status:           Pending
+IP:               10.244.0.12
+IPs:
+  IP:           10.244.0.12
+Controlled By:  ReplicaSet/metrics-547dccf75
+Containers:
+  metrics:
+    Container ID:   
+    Image:          docker.io/ebinterview/eb-debug-app:1.0.1
+    Image ID:       
+    Port:           8080/TCP (http)
+    Host Port:      0/TCP (http)
+    State:          Waiting
+      Reason:       CreateContainerConfigError
+    Ready:          False
+    Restart Count:  0
+    Limits:
+      cpu:     4
+      memory:  128Mi
+    Requests:
+      cpu:      2
+      memory:   64Mi
+    Readiness:  http-get http://:8080/healthz delay=3s timeout=3s period=5s #success=1 #failure=3
+    Environment:
+      APP_MODE:  api
+      APP_NAME:  metrics
+      VERSION:   2.0.0
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-l6fn2 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-l6fn2:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                   From               Message
+  ----     ------     ----                  ----               -------
+  Normal   Scheduled  33m                   default-scheduler  Successfully assigned debug-lab/metrics-547dccf75-ddbmx to demo-control-plane
+  Normal   Pulling    33m                   kubelet            spec.containers{metrics}: Pulling image "docker.io/ebinterview/eb-debug-app:1.0.1"
+  Normal   Pulled     33m                   kubelet            spec.containers{metrics}: Successfully pulled image "docker.io/ebinterview/eb-debug-app:1.0.1" in 7.791s (7.791s including waiting). Image size: 3279587 bytes.
+  Normal   Pulled     117s (x140 over 33m)  kubelet            spec.containers{metrics}: Container image "docker.io/ebinterview/eb-debug-app:1.0.1" already present on machine and can be accessed by the pod
+  Warning  Failed     106s (x142 over 33m)  kubelet            spec.containers{metrics}: Error: container has runAsNonRoot and image has non-numeric user (nonroot), cannot verify user is non-root (pod: "metrics-547dccf75-ddbmx_debug-lab(cd07064c-f229-4115-a7bf-0980887f9afc)", container: metrics)
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mkubectl get limitrange debug-lab-guardrails -n debug-lab -o yaml[27m[64D[27mk[27mu[27mb[27me[27mc[27mt[27ml[27m [27mg[27me[27mt[27m [27ml[27mi[27mm[27mi[27mt[27mr[27ma[27mn[27mg[27me[27m [27md[27me[27mb[27mu[27mg[27m-[27ml[27ma[27mb[27m-[27mg[27mu[27ma[27mr[27md[27mr[27ma[27mi[27ml[27ms[27m [27m-[27mn[27m [27md[27me[27mb[27mu[27mg[27m-[27ml[27ma[27mb[27m [27m-[27mo[27m [27my[27ma[27mm[27ml[?2004l
+apiVersion: v1
+kind: LimitRange
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"LimitRange","metadata":{"annotations":{},"name":"debug-lab-guardrails","namespace":"debug-lab"},"spec":{"limits":[{"default":{"cpu":"200m","memory":"128Mi"},"defaultRequest":{"cpu":"50m","memory":"64Mi"},"max":{"cpu":"1","memory":"512Mi"},"type":"Container"}]}}
+  creationTimestamp: "2026-11-06T13:21:58Z"
+  name: debug-lab-guardrails
+  namespace: debug-lab
+  resourceVersion: "7873"
+  uid: 4f8e1230-6805-4618-9dfc-b8a96019b7da
+spec:
+  limits:
+  - default:
+      cpu: 200m
+      memory: 128Mi
+    defaultRequest:
+      cpu: 50m
+      memory: 64Mi
+    max:
+      cpu: "1"
+      memory: 512Mi
+    type: Container
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7m./scenario.sh verify[27m[20D[27m.[27m/[27ms[27mc[27me[27mn[27ma[27mr[27mi[27mo[27m.[27ms[27mh[27m [27mv[27me[27mr[27mi[27mf[27my[?2004l
+==> verifying goal state in namespace debug-lab
+  [31mFAIL[0m  migrate Job has not completed (does it exist? did the chart even install cleanly?)
+  [31mFAIL[0m  deployment backend: 0/1 ready
+  [31mFAIL[0m  deployment gateway: 0/1 ready
+  [31mFAIL[0m  deployment worker: 0/1 ready
+  [31mFAIL[0m  deployment reporter: 0/1 ready
+  [31mFAIL[0m  deployment metrics: 0/1 ready
+  [32mPASS[0m  no pods in CrashLoopBackOff
+  [31mFAIL[0m  ServiceAccount debug-lab/reporter cannot list pods
+  [31mFAIL[0m  backend does not answer on http://backend:8080/healthz
+  [31mFAIL[0m  gateway /status does not report backend=ok
+  [31mFAIL[0m  reporter /report does not return a pod count
+
+[31m10 check(s) failing[0m, 1 passing. Keep digging — every failure is a symptom.
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h>....                                                                    
+[7massert old in content[27m[K
+[7mcontent = content.replace(old, new)[27m[K
+[K
+[7mold_cpu = '''  resources:[27m[K
+[7m    requests:[27m[K
+[7m      cpu: "2"[27m[K
+[7m      memory: "64Mi"[27m[K
+[7m    limits:[27m[K
+[7m      cpu: "4"[27m[K
+[7m      memory: "128Mi"'''[27m[K
+[7mnew_cpu = '''  resources:[27m[K
+[7m    requests:[27m[K
+[7m      cpu: "200m"[27m[K
+[7m      memory: "64Mi"[27m[K
+[7m    limits:[27m[K
+[7m      cpu: "500m"[27m[K
+[7m      memory: "128Mi"'''[27m[K
+[7massert old_cpu in content[27m[K
+[7mcontent = content.replace(old_cpu, new_cpu)[27m[K
+[7mpath.write_text(content)[27m[K
+[7mprint("Fixed gateway URL and metrics configuration")[27m[K
+[K
+[7m# Fix reporter RoleBinding[27m[K
+[7mpath = Path("broken-chart/templates/rbac.yaml")[27m[K
+[7mcontent = path.read_text()[27m[K
+[7massert "    name: default" in content[27m[K
+[7mpath.write_text(content.replace("    name: default", "    name: reporter"))[27m[K
+[7mprint("Fixed reporter RoleBinding")[27m[K
+[7mPY[27m[K[28A[27ma[27ms[27ms[27me[27mr[27mt[27m [27mo[27ml[27md[27m [27mi[27mn[27m [27mc[27mo[27mn[27mt[27me[27mn[27mt[1B[27mc[27mo[27mn[27mt[27me[27mn[27mt[27m [27m=[27m [27mc[27mo[27mn[27mt[27me[27mn[27mt[27m.[27mr[27me[27mp[27ml[27ma[27mc[27me[27m([27mo[27ml[27md[27m,[27m [27mn[27me[27mw[27m)[2B[27mo[27ml[27md[27m_[27mc[27mp[27mu[27m [27m=[27m [27m'[27m'[27m'[27m [27m [27mr[27me[27ms[27mo[27mu[27mr[27mc[27me[27ms[27m:[1B[27m [27m [27m [27m [27mr[27me[27mq[27mu[27me[27ms[27mt[27ms[27m:[1B[27m [27m [27m [27m [27m [27m [27mc[27mp[27mu[27m:[27m [27m"[27m2[27m"[1B[27m [27m [27m [27m [27m [27m [27mm[27me[27mm[27mo[27mr[27my[27m:[27m [27m"[27m6[27m4[27mM[27mi[27m"[1B[27m [27m [27m [27m [27ml[27mi[27mm[27mi[27mt[27ms[27m:[1B[27m [27m [27m [27m [27m [27m [27mc[27mp[27mu[27m:[27m [27m"[27m4[27m"[1B[27m [27m [27m [27m [27m [27m [27mm[27me[27mm[27mo[27mr[27my[27m:[27m [27m"[27m1[27m2[27m8[27mM[27mi[27m"[27m'[27m'[27m'[1B[27mn[27me[27mw[27m_[27mc[27mp[27mu[27m [27m=[27m [27m'[27m'[27m'[27m [27m [27mr[27me[27ms[27mo[27mu[27mr[27mc[27me[27ms[27m:[1B[27m [27m [27m [27m [27mr[27me[27mq[27mu[27me[27ms[27mt[27ms[27m:[1B[27m [27m [27m [27m [27m [27m [27mc[27mp[27mu[27m:[27m [27m"[27m2[27m0[27m0[27mm[27m"[1B[27m [27m [27m [27m [27m [27m [27mm[27me[27mm[27mo[27mr[27my[27m:[27m [27m"[27m6[27m4[27mM[27mi[27m"[1B[27m [27m [27m [27m [27ml[27mi[27mm[27mi[27mt[27ms[27m:[1B[27m [27m [27m [27m [27m [27m [27mc[27mp[27mu[27m:[27m [27m"[27m5[27m0[27m0[27mm[27m"[1B[27m [27m [27m [27m [27m [27m [27mm[27me[27mm[27mo[27mr[27my[27m:[27m [27m"[27m1[27m2[27m8[27mM[27mi[27m"[27m'[27m'[27m'[1B[27ma[27ms[27ms[27me[27mr[27mt[27m [27mo[27ml[27md[27m_[27mc[27mp[27mu[27m [27mi[27mn[27m [27mc[27mo[27mn[27mt[27me[27mn[27mt[1B[27mc[27mo[27mn[27mt[27me[27mn[27mt[27m [27m=[27m [27mc[27mo[27mn[27mt[27me[27mn[27mt[27m.[27mr[27me[27mp[27ml[27ma[27mc[27me[27m([27mo[27ml[27md[27m_[27mc[27mp[27mu[27m,[27m [27mn[27me[27mw[27m_[27mc[27mp[27mu[27m)[1B[27mp[27ma[27mt[27mh[27m.[27mw[27mr[27mi[27mt[27me[27m_[27mt[27me[27mx[27mt[27m([27mc[27mo[27mn[27mt[27me[27mn[27mt[27m)[1B[27mp[27mr[27mi[27mn[27mt[27m([27m"[27mF[27mi[27mx[27me[27md[27m [27mg[27ma[27mt[27me[27mw[27ma[27my[27m [27mU[27mR[27mL[27m [27ma[27mn[27md[27m [27mm[27me[27mt[27mr[27mi[27mc[27ms[27m [27mc[27mo[27mn[27mf[27mi[27mg[27mu[27mr[27ma[27mt[27mi[27mo[27mn[27m"[27m)[2B[27m#[27m [27mF[27mi[27mx[27m [27mr[27me[27mp[27mo[27mr[27mt[27me[27mr[27m [27mR[27mo[27ml[27me[27mB[27mi[27mn[27md[27mi[27mn[27mg[1B[27mp[27ma[27mt[27mh[27m [27m=[27m [27mP[27ma[27mt[27mh[27m([27m"[27mb[27mr[27mo[27mk[27me[27mn[27m-[27mc[27mh[27ma[27mr[27mt[27m/[27mt[27me[27mm[27mp[27ml[27ma[27mt[27me[27ms[27m/[27mr[27mb[27ma[27mc[27m.[27my[27ma[27mm[27ml[27m"[27m)[1B[27mc[27mo[27mn[27mt[27me[27mn[27mt[27m [27m=[27m [27mp[27ma[27mt[27mh[27m.[27mr[27me[27ma[27md[27m_[27mt[27me[27mx[27mt[27m([27m)[1B[27ma[27ms[27ms[27me[27mr[27mt[27m [27m"[27m [27m [27m [27m [27mn[27ma[27mm[27me[27m:[27m [27md[27me[27mf[27ma[27mu[27ml[27mt[27m"[27m [27mi[27mn[27m [27mc[27mo[27mn[27mt[27me[27mn[27mt[1B[27mp[27ma[27mt[27mh[27m.[27mw[27mr[27mi[27mt[27me[27m_[27mt[27me[27mx[27mt[27m([27mc[27mo[27mn[27mt[27me[27mn[27mt[27m.[27mr[27me[27mp[27ml[27ma[27mc[27me[27m([27m"[27m [27m [27m [27m [27mn[27ma[27mm[27me[27m:[27m [27md[27me[27mf[27ma[27mu[27ml[27mt[27m"[27m,[27m [27m"[27m [27m [27m [27m [27mn[27ma[27mm[27me[27m:[27m [27mr[27me[27mp[27mo[27mr[27mt[27me[27mr[27m"[27m)[27m)[1B[27mp[27mr[27mi[27mn[27mt[27m([27m"[27mF[27mi[27mx[27me[27md[27m [27mr[27me[27mp[27mo[27mr[27mt[27me[27mr[27m [27mR[27mo[27ml[27me[27mB[27mi[27mn[27md[27mi[27mn[27mg[27m"[27m)[1B[27mP[27mY[?2004l
+Updated security context: broken-chart/templates/backend.yaml
+Updated security context: broken-chart/templates/gateway.yaml
+Updated security context: broken-chart/templates/worker.yaml
+Updated security context: broken-chart/templates/reporter.yaml
+Updated security context: broken-chart/templates/metrics.yaml
+Updated security context: broken-chart/templates/migrate-job.yaml
+Fixed migration Job restart policy
+Fixed gateway URL and metrics configuration
+Fixed reporter RoleBinding
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mhelm lint ./broken-chart[27m[24D[27mh[27me[27ml[27mm[27m [27ml[27mi[27mn[27mt[27m [27m.[27m/[27mb[27mr[27mo[27mk[27me[27mn[27m-[27mc[27mh[27ma[27mr[27mt[?2004l
+==> Linting ./broken-chart
+[INFO] Chart.yaml: icon is recommended
+
+1 chart(s) linted, 0 chart(s) failed
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mgrep -R -n -E 'runAsUser|runAsGroup|restartPolicy' broken-chart/templates[27m [K[A[47C[27mg[27mr[27me[27mp[27m [27m-[27mR[27m [27m-[27mn[27m [27m-[27mE[27m [27m'[27mr[27mu[27mn[27mA[27ms[27mU[27ms[27me[27mr[27m|[27mr[27mu[27mn[27mA[27ms[27mG[27mr[27mo[27mu[27mp[27m|[27mr[27me[27ms[27mt[27ma[27mr[27mt[27mP[27mo[27ml[27mi[27mc[27my[27m'[27m [27mb[27mr[27mo[27mk[27me[27mn[27m-[27mc[27mh[27ma[27mr[27mt[27m/[27mt[27me[27mm[27mp[27ml[27ma[27mt[27me[27ms [K[?2004l
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mgrep -R -n -E 'runAsUser|runAsGroup|restartPolicy' broken-chart/templates[27m [K[A[47C[27mg[27mr[27me[27mp[27m [27m-[27mR[27m [27m-[27mn[27m [27m-[27mE[27m [27m'[27mr[27mu[27mn[27mA[27ms[27mU[27ms[27me[27mr[27m|[27mr[27mu[27mn[27mA[27ms[27mG[27mr[27mo[27mu[27mp[27m|[27mr[27me[27ms[27mt[27ma[27mr[27mt[27mP[27mo[27ml[27mi[27mc[27my[27m'[27m [27mb[27mr[27mo[27mk[27me[27mn[27m-[27mc[27mh[27ma[27mr[27mt[27m/[27mt[27me[27mm[27mp[27ml[27ma[27mt[27me[27ms [K[?2004l
+broken-chart/templates/metrics.yaml:40:            runAsUser: 65532
+broken-chart/templates/metrics.yaml:41:            runAsGroup: 65532
+broken-chart/templates/worker.yaml:40:            runAsUser: 65532
+broken-chart/templates/worker.yaml:41:            runAsGroup: 65532
+broken-chart/templates/reporter.yaml:45:            runAsUser: 65532
+broken-chart/templates/reporter.yaml:46:            runAsGroup: 65532
+broken-chart/templates/gateway.yaml:40:            runAsUser: 65532
+broken-chart/templates/gateway.yaml:41:            runAsGroup: 65532
+broken-chart/templates/backend.yaml:40:            runAsUser: 65532
+broken-chart/templates/backend.yaml:41:            runAsGroup: 65532
+broken-chart/templates/migrate-job.yaml:16:      restartPolicy: Never
+broken-chart/templates/migrate-job.yaml:30:            runAsUser: 65532
+broken-chart/templates/migrate-job.yaml:31:            runAsGroup: 65532
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mgrep -n -A18 'gateway:\|metrics:' broken-chart/values.yaml[27m[58D[27mg[27mr[27me[27mp[27m [27m-[27mn[27m [27m-[27mA[27m1[27m8[27m [27m'[27mg[27ma[27mt[27me[27mw[27ma[27my[27m:[27m\[27m|[27mm[27me[27mt[27mr[27mi[27mc[27ms[27m:[27m'[27m [27mb[27mr[27mo[27mk[27me[27mn[27m-[27mc[27mh[27ma[27mr[27mt[27m/[27mv[27ma[27ml[27mu[27me[27ms[27m.[27my[27ma[27mm[27ml[?2004l
+32:gateway:
+33-  replicas: 1
+34-  env:
+35-    APP_MODE: "gateway"
+36-    APP_NAME: "gateway"
+37-    VERSION: "2.0.0"
+38-    BACKEND_URL: "http://backend.debug-lab.svc:8080"
+39-  resources:
+40-    requests:
+41-      cpu: "50m"
+42-      memory: "64Mi"
+43-    limits:
+44-      cpu: "200m"
+45-      memory: "128Mi"
+46-
+47-worker:
+48-  replicas: 1
+49-  env:
+50-    APP_MODE: "worker"
+--
+76:metrics:
+77-  replicas: 1
+78-  env:
+79-    APP_MODE: "metrics"
+80-    APP_NAME: "metrics"
+81-    VERSION: "2.0.0"
+82-  resources:
+83-    requests:
+84-      cpu: "200m"
+85-      memory: "64Mi"
+86-    limits:
+87-      cpu: "500m"
+88-      memory: "128Mi"
+89-
+90-migrate:
+91-  enabled: true
+92-  backoffLimit: 2
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7m./scenario.sh up[27m[16D[27m.[27m/[27ms[27mc[27me[27mn[27ma[27mr[27mi[27mo[27m.[27ms[27mh[27m [27mu[27mp[?2004l
+==> applying cluster environment (cluster-state/)
+limitrange/debug-lab-guardrails unchanged
+namespace/debug-lab unchanged
+==> installing the broken chart
+Release "debug-lab" has been upgraded. Happy Helming!
+NAME: debug-lab
+LAST DEPLOYED: Fri Nov  6 19:15:38 2026
+NAMESPACE: [36mdebug-lab[0m
+STATUS: [32mdeployed[0m
+REVISION: 2
+DESCRIPTION: Upgrade complete
+TEST SUITE: None
+NOTES:
+debug-lab installed into namespace debug-lab.
+
+Goal state:
+  * migrate Job: Completed
+  * backend, gateway, worker, reporter, metrics: all pods Running and 1/1 Ready
+  * gateway /status reports {"self":"ok","backend":"ok",...}
+
+Check your progress at any time:
+  ./scenario.sh verify
+
+Lab is (partially) installed. Investigate with kubectl, fix the chart,
+re-run './scenario.sh up' to apply your fixes, and './scenario.sh verify'
+to check progress.
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mkubectl get pods -n debug-lab[27m
+[7mkubectl get jobs -n debug-lab[27m[K[A[18C[27mk[27mu[27mb[27me[27mc[27mt[27ml[27m [27mg[27me[27mt[27m [27mp[27mo[27md[27ms[27m [27m-[27mn[27m [27md[27me[27mb[27mu[27mg[27m-[27ml[27ma[27mb[1B[27mk[27mu[27mb[27me[27mc[27mt[27ml[27m [27mg[27me[27mt[27m [27mj[27mo[27mb[27ms[27m [27m-[27mn[27m [27md[27me[27mb[27mu[27mg[27m-[27ml[27ma[27mb[?2004l
+NAME                        READY   STATUS                       RESTARTS     AGE
+backend-6865788b54-lbcfh    0/1     Running                      0            6s
+backend-7948fd6b4b-6spgv    0/1     CreateContainerConfigError   0            37m
+gateway-5cbdcd4bf8-mv9qz    0/1     CreateContainerConfigError   0            37m
+gateway-dd7545d46-zcrr6     0/1     Running                      0            6s
+metrics-547dccf75-ddbmx     0/1     CreateContainerConfigError   0            37m
+metrics-7795687f9d-6m6rv    0/1     CrashLoopBackOff             1 (4s ago)   6s
+migrate-h72h5               0/1     Completed                    0            6s
+reporter-6f8bff6b8d-stqp8   0/1     CreateContainerConfigError   0            37m
+reporter-74bf5fb96-nmq9q    0/1     Running                      0            6s
+worker-5fcd6b9b6b-zzjgx     0/1     CreateContainerConfigError   0            37m
+worker-644f6d84cd-wtj54     0/1     CrashLoopBackOff             1 (4s ago)   6s
+NAME      STATUS     COMPLETIONS   DURATION   AGE
+migrate   Complete   1/1           6s         6s
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mkubectl logs deployment/metrics -n debug-lab --previous[27m[55D[27mk[27mu[27mb[27me[27mc[27mt[27ml[27m [27ml[27mo[27mg[27ms[27m [27md[27me[27mp[27ml[27mo[27my[27mm[27me[27mn[27mt[27m/[27mm[27me[27mt[27mr[27mi[27mc[27ms[27m [27m-[27mn[27m [27md[27me[27mb[27mu[27mg[27m-[27ml[27ma[27mb[27m [27m-[27m-[27mp[27mr[27me[27mv[27mi[27mo[27mu[27ms[?2004l
+Found 2 pods, using pod/metrics-7795687f9d-6m6rv
+2026/11/06 13:45:54 FATAL: unknown APP_MODE "metrics" (want api, gateway, worker, reporter or migrate)
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mkubectl logs deployment/worker -n debug-lab --previous[27m[54D[27mk[27mu[27mb[27me[27mc[27mt[27ml[27m [27ml[27mo[27mg[27ms[27m [27md[27me[27mp[27ml[27mo[27my[27mm[27me[27mn[27mt[27m/[27mw[27mo[27mr[27mk[27me[27mr[27m [27m-[27mn[27m [27md[27me[27mb[27mu[27mg[27m-[27ml[27ma[27mb[27m [27m-[27m-[27mp[27mr[27me[27mv[27mi[27mo[27mu[27ms[?2004l
+Found 2 pods, using pod/worker-644f6d84cd-wtj54
+2026/11/06 13:46:16 FATAL: worker could not initialise its cache: mkdir /var/cache/app: read-only file system — the process needs a writable directory at /var/cache/app (mount a volume there, or set CACHE_DIR)
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mkubectl get events -n debug-lab --sort-by='.lastTimestamp' | tail -25[27m[69D[27mk[27mu[27mb[27me[27mc[27mt[27ml[27m [27mg[27me[27mt[27m [27me[27mv[27me[27mn[27mt[27ms[27m [27m-[27mn[27m [27md[27me[27mb[27mu[27mg[27m-[27ml[27ma[27mb[27m [27m-[27m-[27ms[27mo[27mr[27mt[27m-[27mb[27my[27m=[27m'[27m.[27ml[27ma[27ms[27mt[27mT[27mi[27mm[27me[27ms[27mt[27ma[27mm[27mp[27m'[27m [27m|[27m [27mt[27ma[27mi[27ml[27m [27m-[27m2[27m5[?2004l
+58s         Normal    Scheduled           pod/gateway-dd7545d46-zcrr6      Successfully assigned debug-lab/gateway-dd7545d46-zcrr6 to demo-control-plane
+58s         Normal    ScalingReplicaSet   deployment/reporter              Scaled up replica set reporter-74bf5fb96 from 0 to 1
+58s         Normal    Created             pod/gateway-dd7545d46-zcrr6      Container created
+58s         Normal    Scheduled           pod/reporter-74bf5fb96-nmq9q     Successfully assigned debug-lab/reporter-74bf5fb96-nmq9q to demo-control-plane
+58s         Normal    Scheduled           pod/backend-6865788b54-lbcfh     Successfully assigned debug-lab/backend-6865788b54-lbcfh to demo-control-plane
+58s         Normal    Pulled              pod/gateway-dd7545d46-zcrr6      Container image "docker.io/ebinterview/eb-debug-app:1.0.1" already present on machine and can be accessed by the pod
+58s         Normal    SuccessfulCreate    replicaset/reporter-74bf5fb96    Created pod: reporter-74bf5fb96-nmq9q
+57s         Normal    Started             pod/backend-6865788b54-lbcfh     Container started
+57s         Normal    Started             pod/reporter-74bf5fb96-nmq9q     Container started
+57s         Normal    Pulled              pod/backend-6865788b54-lbcfh     Container image "docker.io/ebinterview/eb-debug-app:1.0.1" already present on machine and can be accessed by the pod
+57s         Normal    Started             pod/gateway-dd7545d46-zcrr6      Container started
+57s         Normal    Created             pod/backend-6865788b54-lbcfh     Container created
+57s         Normal    Started             pod/migrate-h72h5                Container started
+52s         Normal    Completed           job/migrate                      Job completed
+20s         Normal    Created             pod/worker-644f6d84cd-wtj54      Container created
+20s         Normal    Pulled              pod/worker-644f6d84cd-wtj54      Container image "docker.io/ebinterview/eb-debug-app:1.0.1" already present on machine and can be accessed by the pod
+20s         Normal    Started             pod/worker-644f6d84cd-wtj54      Container started
+18s         Warning   BackOff             pod/worker-644f6d84cd-wtj54      Back-off restarting failed container worker in pod worker-644f6d84cd-wtj54_debug-lab(6465f9cf-e27e-4469-9d51-9057cea87fc1)
+17s         Normal    Pulled              pod/metrics-7795687f9d-6m6rv     Container image "docker.io/ebinterview/eb-debug-app:1.0.1" already present on machine and can be accessed by the pod
+17s         Normal    Created             pod/metrics-7795687f9d-6m6rv     Container created
+17s         Normal    Started             pod/metrics-7795687f9d-6m6rv     Container started
+15s         Warning   BackOff             pod/metrics-7795687f9d-6m6rv     Back-off restarting failed container metrics in pod metrics-7795687f9d-6m6rv_debug-lab(509fd4eb-1af3-4bd7-8864-fcbc6de29f46)
+2s          Warning   Unhealthy           pod/gateway-dd7545d46-zcrr6      Readiness probe failed: Get "http://10.244.0.16:8080/healthz": dial tcp 10.244.0.16:8080: connect: connection refused
+2s          Warning   Unhealthy           pod/reporter-74bf5fb96-nmq9q     Readiness probe failed: Get "http://10.244.0.18:8080/healthz": dial tcp 10.244.0.18:8080: connect: connection refused
+0s          Warning   Unhealthy           pod/backend-6865788b54-lbcfh     Readiness probe failed: Get "http://10.244.0.21:8080/healthz": dial tcp 10.244.0.21:8080: connect: connection refused
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mcat broken-chart/templates/worker.yaml[27m[38D[27mc[27ma[27mt[27m [27mb[27mr[27mo[27mk[27me[27mn[27m-[27mc[27mh[27ma[27mr[27mt[27m/[27mt[27me[27mm[27mp[27ml[27ma[27mt[27me[27ms[27m/[27mw[27mo[27mr[27mk[27me[27mr[27m.[27my[27ma[27mm[27ml[?2004l
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+  labels:
+    app: worker
+    {{- include "lab.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.worker.replicas }}
+  selector:
+    matchLabels:
+      app: worker
+  template:
+    metadata:
+      labels:
+        app: worker
+        {{- include "lab.labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: worker
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.common.port }}
+          env:
+            {{- range $name, $value := .Values.worker.env }}
+            - name: {{ $name }}
+              value: {{ $value | quote }}
+            {{- end }}
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.common.port }}
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            timeoutSeconds: 3
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65532
+            runAsGroup: 65532
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            {{- toYaml .Values.worker.resources | nindent 12 }}
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mcat broken-chart/templates/metrics.yaml[27m[39D[27mc[27ma[27mt[27m [27mb[27mr[27mo[27mk[27me[27mn[27m-[27mc[27mh[27ma[27mr[27mt[27m/[27mt[27me[27mm[27mp[27ml[27ma[27mt[27me[27ms[27m/[27mm[27me[27mt[27mr[27mi[27mc[27ms[27m.[27my[27ma[27mm[27ml[?2004l
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: metrics
+  labels:
+    app: metrics
+    {{- include "lab.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.metrics.replicas }}
+  selector:
+    matchLabels:
+      app: metrics
+  template:
+    metadata:
+      labels:
+        app: metrics
+        {{- include "lab.labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: metrics
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.common.port }}
+          env:
+            {{- range $name, $value := .Values.metrics.env }}
+            - name: {{ $name }}
+              value: {{ $value | quote }}
+            {{- end }}
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.common.port }}
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            timeoutSeconds: 3
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65532
+            runAsGroup: 65532
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            {{- toYaml .Values.metrics.resources | nindent 12 }}
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mnano broken-chart/values.yaml[27m[29D[27mn[27ma[27mn[27mo[27m [27mb[27mr[27mo[27mk[27me[27mn[27m-[27mc[27mh[27ma[27mr[27mt[27m/[27mv[27ma[27ml[27mu[27me[27ms[27m.[27my[27ma[27mm[27ml[?2004l
+[?1049h[1;30r[1;1H[J[7m  UW PICO 5.09                                               New Buffer                                                 [27m[29;1H[K[30;1H[K[29;1H[7m^[27m[7mG[27m Get Help         [7m^[27m[7mO[27m WriteOut         [7m^[27m[7mR[27m Read File        [7m^[27m[7mY[27m Prev Pg          [7m^[27m[7mK[27m Cut Text         [7m^[27m[7mC[27m Cur Pos          [30;1H[7m^[27m[7mX[27m Exit             [7m^[27m[7mJ[27m Justify          [7m^[27m[7mW[27m Where is         [7m^[27m[7mV[27m Next Pg          [7m^[27m[7mU[27m UnCut Text       [7m^[27m[7mT[27m To Spell        [K[3;1H[28;1H                                                                                                                        [28;53H[7m[ Reading file ][27m[28;1H                                                                                                                        [28;52H[7m[ Read 92 lines ][27m[1;1H[J[7m  UW PICO 5.09                                     File: broken-chart/values.yaml                                       [27m[3;1H# Debug lab — values.[4;1H#[5;1H# Lab rules (also in the assignment):[6;1H#   * You may change anything in this chart — values or templates.[7;1H#   * You may NOT change image.repository or image.tag.[8;1H#   * You may NOT modify anything under ../cluster-state/.[9;1H#   * You may NOT delete workloads to make a symptom disappear.[11;1Himage:[12;3Hrepository: docker.io/ebinterview/eb-debug-app[13;3Htag: "1.0.1"[14;3HpullPolicy: IfNotPresent[16;1Hcommon:[17;3H# Every workload serves plain HTTP on this port.[18;3Hport: 8080[20;1Hbackend:[21;3Hreplicas: 1[22;3Henv:[23;5HAPP_MODE: "api"[24;5HAPP_NAME: "backend"[25;5HVERSION: "2.0.0"[26;3Hresources:[27;5Hrequests:[29;1H[K[30;1H[K[29;1H[7m^[27m[7mG[27m Get Help         [7m^[27m[7mO[27m WriteOut         [7m^[27m[7mR[27m Read File        [7m^[27m[7mY[27m Prev Pg          [7m^[27m[7mK[27m Cut Text         [7m^[27m[7mC[27m Cur Pos          [30;1H[7m^[27m[7mX[27m Exit             [7m^[27m[7mJ[27m Justify          [7m^[27m[7mW[27m Where is         [7m^[27m[7mV[27m Next Pg          [7m^[27m[7mU[27m UnCut Text       [7m^[27m[7mT[27m To Spell        [K[3;1H[28;1H                                                                                                                        [28;1H[7mFile Name to write :                                                                                                    [28;22H[27m[29;22H[7mT[27m  To Files                                                                                        [30;2H[7mC[27m Cancel           [7mT[27m[7mA[27m[7mB[27m Complete                                                                                       [K[7m[28;22Hbroken-chart/values.yaml                                                                           [28;46H[27m[28;1H                                                                                                                        [28;54H[7m[ Writing... ][27m[28;1H                                                                                                                        [28;52H[7m[ Wrote 92 lines ][27m[29;1H[K[30;1H[K[29;1H[7m^[27m[7mG[27m Get Help         [7m^[27m[7mO[27m WriteOut         [7m^[27m[7mR[27m Read File        [7m^[27m[7mY[27m Prev Pg          [7m^[27m[7mK[27m Cut Text         [7m^[27m[7mC[27m Cur Pos          [30;1H[7m^[27m[7mX[27m Exit             [7m^[27m[7mJ[27m Justify          [7m^[27m[7mW[27m Where is         [7m^[27m[7mV[27m Next Pg          [7m^[27m[7mU[27m UnCut Text       [7m^[27m[7mT[27m To Spell        [K[3;1H[29;1H[K[30;1H[K[?1049l[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mnano broken-chart/templates/worker.yaml[27m[39D[27mn[27ma[27mn[27mo[27m [27mb[27mr[27mo[27mk[27me[27mn[27m-[27mc[27mh[27ma[27mr[27mt[27m/[27mt[27me[27mm[27mp[27ml[27ma[27mt[27me[27ms[27m/[27mw[27mo[27mr[27mk[27me[27mr[27m.[27my[27ma[27mm[27ml[?2004l
+[?1049h[1;30r[1;1H[J[7m  UW PICO 5.09                                               New Buffer                                                 [27m[29;1H[K[30;1H[K[29;1H[7m^[27m[7mG[27m Get Help         [7m^[27m[7mO[27m WriteOut         [7m^[27m[7mR[27m Read File        [7m^[27m[7mY[27m Prev Pg          [7m^[27m[7mK[27m Cut Text         [7m^[27m[7mC[27m Cur Pos          [30;1H[7m^[27m[7mX[27m Exit             [7m^[27m[7mJ[27m Justify          [7m^[27m[7mW[27m Where is         [7m^[27m[7mV[27m Next Pg          [7m^[27m[7mU[27m UnCut Text       [7m^[27m[7mT[27m To Spell        [K[3;1H[28;1H                                                                                                                        [28;53H[7m[ Reading file ][27m[28;1H                                                                                                                        [28;52H[7m[ Read 47 lines ][27m[1;1H[J[7m  UW PICO 5.09                                File: broken-chart/templates/worker.yaml                                  [27m[3;1HapiVersion: apps/v1[4;1Hkind: Deployment[5;1Hmetadata:[6;3Hname: worker[7;3Hlabels:[8;5Happ: worker[9;5H{{- include "lab.labels" . | nindent 4 }}[10;1Hspec:[11;3Hreplicas: {{ .Values.worker.replicas }}[12;3Hselector:[13;5HmatchLabels:[14;7Happ: worker[15;3Htemplate:[16;5Hmetadata:[17;7Hlabels:[18;9Happ: worker[19;9H{{- include "lab.labels" . | nindent 8 }}[20;5Hspec:[21;7Hcontainers:[22;9H- name: worker[23;11Himage: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"[24;11HimagePullPolicy: {{ .Values.image.pullPolicy }}[25;11Hports:[26;13H- name: http[27;15HcontainerPort: {{ .Values.common.port }}[29;1H[K[30;1H[K[29;1H[7m^[27m[7mG[27m Get Help         [7m^[27m[7mO[27m WriteOut         [7m^[27m[7mR[27m Read File        [7m^[27m[7mY[27m Prev Pg          [7m^[27m[7mK[27m Cut Text         [7m^[27m[7mC[27m Cur Pos          [30;1H[7m^[27m[7mX[27m Exit             [7m^[27m[7mJ[27m Justify          [7m^[27m[7mW[27m Where is         [7m^[27m[7mV[27m Next Pg          [7m^[27m[7mU[27m UnCut Text       [7m^[27m[7mT[27m To Spell        [K[3;1H            - name: http[4;1H              containerPort: {{ .Values.common.port }}[5;1H          env:[6;3H          {{- range $name, $value := .Values.worker.env }}[7;3H          - name: {{ $name }}[8;5H          value: {{ $value | quote }}[9;5H        {{- end }}[K[10;1H          readinessProbe:[11;3H          httpGet:[K[12;3H            path: /healthz[13;5H          port: {{ .Values.common.port }}[14;7H      initialDelaySeconds: 3[15;3H          periodSeconds: 5[16;5H        timeoutSeconds: 3[17;7H    securityContext:[18;9H    runAsNonRoot: true[19;9H    runAsUser: 65532[K[20;5H        runAsGroup: 65532[21;7H      readOnlyRootFilesystem: true[22;9H    allowPrivilegeEscalation: false[23;11H  capabilities:[K[24;11H    drop: ["ALL"][K[25;11Hresources:[26;13H{{- toYaml .Values.worker.resources | nindent 12 }}[27;15H[K[3;1H[3;13H{{- toYaml .Values.worker.resources | nindent 12 }}[4;15H[K[5;11H[K[6;13H[K[7;13H[K[8;15H[K[9;13H[K[10;11H[K[11;13H[K[12;15H[K[13;15H[K[14;13H[K[15;13H[K[16;13H[K[17;11H[K[18;13H[K[19;13H[K[20;13H[K[21;13H[K[22;13H[K[23;13H[K[24;15H[K[25;11H[K[26;13H[K[3;1H[3;13H- name: http[K[4;15HcontainerPort: {{ .Values.common.port }}[5;11Henv:[6;13H{{- range $name, $value := .Values.worker.env }}[7;13H- name: {{ $name }}[8;15Hvalue: {{ $value | quote }}[9;13H{{- end }}[10;11HreadinessProbe:[11;13HhttpGet:[12;15Hpath: /healthz[13;15Hport: {{ .Values.common.port }}[14;13HinitialDelaySeconds: 3[15;13HperiodSeconds: 5[16;13HtimeoutSeconds: 3[17;11HsecurityContext:[18;13HrunAsNonRoot: true[19;13HrunAsUser: 65532[20;13HrunAsGroup: 65532[21;13HreadOnlyRootFilesystem: true[22;13HallowPrivilegeEscalation: false[23;13Hcapabilities:[24;15Hdrop: ["ALL"][25;11Hresources:[26;13H{{- toYaml .Values.worker.resources | nindent 12 }}[3;1HapiVersion: apps/v1[K[4;1Hkind: Deployment[K[5;1Hmetadata:[K[6;3Hname: worker[K[7;3Hlabels:[K[8;5Happ: worker[K[9;5H{{- include "lab.labels" . | nindent 4 }}[10;1Hspec:[K[11;3Hreplicas: {{ .Values.worker.replicas }}[12;3Hselector:[K[13;5HmatchLabels:[K[14;7Happ: worker[K[15;3Htemplate:[K[16;5Hmetadata:[K[17;7Hlabels:[K[18;9Happ: worker[K[19;9H{{- include "lab.labels" . | nindent 8 }}[20;5Hspec:[K[21;7Hcontainers:[K[22;9H- name: worker[K[23;11Himage: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"[24;11HimagePullPolicy: {{ .Values.image.pullPolicy }}[25;11Hports:[K[26;13H- name: http[K[27;15HcontainerPort: {{ .Values.common.port }}[3;1H[28;1H                                                                                                                        [28;50H[7m[ Unknown Command:  ][27m[3;1H[4;1H[5;1H[6;1H[7;1H[8;1H[9;1H[10;1H[11;1H[12;1H[13;1H[14;1H[15;1H[16;1H[17;1H[18;1H[19;1H[20;1H[20;2H[20;3H[20;4H[20;5H[28;1H                                                                                                                        [21;5H[22;5H[23;5H[24;5H[23;5H[23;6H[23;7H[23;8H[23;9H[23;10H[23;11H[23;12H[23;13H[23;14H[23;15H[23;16H[23;17H[23;18H[23;19H[23;20H[23;21H[23;22H[23;23H[23;24H[23;25H[23;26H[23;27H[23;28H[23;29H[23;30H[23;31H[23;32H[23;33H[23;34H[23;35H[23;36H[23;37H[23;38H[23;39H[23;40H[23;41H[23;42H[23;43H[23;44H[23;45H[23;46H[23;47H[23;48H[23;49H[23;50H[23;51H[23;52H[23;53H[23;54H[23;55H[23;56H[23;57H[23;58H[23;59H[23;60H[23;59H[23;58H[1;43H[7mFile: broken-chart/templates/worker.yaml                            Modified[27m[23;58H[K[24;1Hes.image.tag }}"[K[25;11HimagePullPolicy: {{ .Values.image.pullPolicy }}[26;11Hports:[K[27;13H- name: http[K[24;1H[23;58Hes.image.tag }}"[24;1H          imagePullPolicy: {{ .Values.image.pullPolicy }}[25;11Hports:[K[26;11H  - name: http[27;13H  containerPort: {{ .Values.common.port }}[23;58H[29;1H                    [7mY[27m Yes                                                                                               [30;2H[7mC[27m Cancel           [7mN[27m No                                                                                               [K[28;1H                                                                                                                        [28;1H[7mSave modified buffer (ANSWERING "No" WILL DESTROY CHANGES) ?                                                            [28;62H[27m[7mNo[27m[29;1H[K[30;1H[K[?1049l[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004hnano broken-chart/templates/worker.yaml[?2004l
+[?1049h[1;30r[1;1H[J[7m  UW PICO 5.09                                               New Buffer                                                 [27m[29;1H[K[30;1H[K[29;1H[7m^[27m[7mG[27m Get Help         [7m^[27m[7mO[27m WriteOut         [7m^[27m[7mR[27m Read File        [7m^[27m[7mY[27m Prev Pg          [7m^[27m[7mK[27m Cut Text         [7m^[27m[7mC[27m Cur Pos          [30;1H[7m^[27m[7mX[27m Exit             [7m^[27m[7mJ[27m Justify          [7m^[27m[7mW[27m Where is         [7m^[27m[7mV[27m Next Pg          [7m^[27m[7mU[27m UnCut Text       [7m^[27m[7mT[27m To Spell        [K[3;1H[28;1H                                                                                                                        [28;53H[7m[ Reading file ][27m[28;1H                                                                                                                        [28;52H[7m[ Read 47 lines ][27m[1;1H[J[7m  UW PICO 5.09                                File: broken-chart/templates/worker.yaml                                  [27m[3;1HapiVersion: apps/v1[4;1Hkind: Deployment[5;1Hmetadata:[6;3Hname: worker[7;3Hlabels:[8;5Happ: worker[9;5H{{- include "lab.labels" . | nindent 4 }}[10;1Hspec:[11;3Hreplicas: {{ .Values.worker.replicas }}[12;3Hselector:[13;5HmatchLabels:[14;7Happ: worker[15;3Htemplate:[16;5Hmetadata:[17;7Hlabels:[18;9Happ: worker[19;9H{{- include "lab.labels" . | nindent 8 }}[20;5Hspec:[21;7Hcontainers:[22;9H- name: worker[23;11Himage: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"[24;11HimagePullPolicy: {{ .Values.image.pullPolicy }}[25;11Hports:[26;13H- name: http[27;15HcontainerPort: {{ .Values.common.port }}[29;1H[K[30;1H[K[29;1H[7m^[27m[7mG[27m Get Help         [7m^[27m[7mO[27m WriteOut         [7m^[27m[7mR[27m Read File        [7m^[27m[7mY[27m Prev Pg          [7m^[27m[7mK[27m Cut Text         [7m^[27m[7mC[27m Cur Pos          [30;1H[7m^[27m[7mX[27m Exit             [7m^[27m[7mJ[27m Justify          [7m^[27m[7mW[27m Where is         [7m^[27m[7mV[27m Next Pg          [7m^[27m[7mU[27m UnCut Text       [7m^[27m[7mT[27m To Spell        [K[3;1H[4;1H[5;1H[6;1H[7;1H[8;1H[9;1H[10;1H[11;1H[12;1H[13;1H[14;1H[15;1H[16;1H[17;1H[18;1H[19;1H[20;1H[21;1H[21;2H[21;3H[21;4H[21;5H[21;6H[21;7H[21;8H[21;9H[21;10H[21;11H[21;12H[21;13H[21;14H[21;15H[21;16H[21;17H[21;18H[22;1H[22;2H[22;3H[22;4H[22;5H[22;6H[22;7H[22;8H[22;9H[22;10H[22;11H[22;12H[22;13H[22;14H[23;14H[24;14H[24;15H[24;16H[24;17H[24;18H[24;19H[24;20H[24;21H[24;22H[24;23H[24;24H[24;25H[24;26H[24;27H[24;28H[24;29H[24;30H[24;31H[24;32H[24;33H[24;34H[24;35H[24;36H[24;37H[24;38H[24;39H[24;40H[24;41H[24;42H[24;43H[24;44H[24;45H[24;46H[24;47H[24;48H[24;49H[24;50H[24;51H[24;52H[24;53H[24;54H[24;55H[24;56H[24;57H[24;58H[1;43H[7mFile: broken-chart/templates/worker.yaml                            Modified[27m[25;11H[K[26;11Hports:[K[27;13H- name: http[K[25;1H[25;2H[25;3H[25;4H[25;5H[25;6H[25;7H[25;8H[25;9H[25;10H[25;11HvolumeMounts:[26;11H[K[27;11Hports:[K[26;1H[26;2H[26;3H[26;4H[26;5H[26;6H[26;7H[26;8H[26;9H[26;10H[26;11H[26;12H[26;13H-[26;15Hname:[26;21Hworker-cache[27;11H[K[27;1H[27;2H[27;3H[27;4H[27;5H[27;6H[27;7H[27;8H[27;9H[27;10H[27;11H[27;12H[27;13H[27;14H[27;15HmountPath:[27;26H/var/cache/app[3;1H    metadata:[K[4;1H      labels:   [5;1H        app: worker[6;3H      {{- include "lab.labels" . | nindent 8 }}[7;3H  spec[8;5H  containers:[9;5H    - name: worker[K[10;1H          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"[11;3H        imagePullPolicy: {{ .Values.image.pullPolicy }}[12;3H        volumeMounts:[13;5H        - name: worker-cache[14;7H        mountPath: /var/cache/app[15;3H        ports:[16;5H        - name: http[17;7H        containerPort: {{ .Values.common.port }}[18;9H  env:[K[19;9H    {{- range $name, $value := .Values.worker.env }}[20;5H        - name: {{ $name }}[21;7H        value: {{ $value | quote }}[22;9H    {{- end }}[23;11HreadinessProbe:[K[24;11H  httpGet:[K[25;11H    path: /healthz[26;13H  port: {{ .Values.common.port }}[27;13HinitialDelaySeconds: 3[K[15;17H[16;25H[3;5H          port: {{ .Values.common.port }}[4;7H      initialDelaySeconds: 3[5;9H    periodSeconds: 5[6;9H    timeoutSeconds: 3[K[7;5H      securityContext:[8;7H      runAsNonRoot: true[9;9H    runAsUser: 65532[10;11H  runAsGroup: 65532[K[11;11H  readOnlyRootFilesystem: true[K[12;11H  allowPrivilegeEscalation: false[13;13Hcapabilities:[K[14;15Hdrop: ["ALL"][K[15;11Hresources:[16;13H{{- toYaml .Values.worker.resources | nindent 12 }}[17;15H[K[18;11H[K[19;13H[K[20;13H[K[21;15H[K[22;13H[K[23;11H[K[24;13H[K[25;15H[K[26;15H[K[27;13H[K[3;1H[17;1H[16;1H[17;1H[17;2H[17;3H[17;4H[17;5H[17;6H[17;7Hvolumes:[18;1H[18;2H[18;3H[18;4H[18;5H[18;6H[18;7H[18;8H[18;9H-[18;11Hname:[18;17Hworker-cache[19;1H[19;2H[19;3H[19;4H[19;5H[19;6H[19;7H[19;8H[19;9H[19;10H[19;11HemptyDir:[19;21H{}[18;23H[17;15H[16;23H[15;21H[14;23H[13;23H[12;23H[11;23H[10;23H[9;23H[8;23H[7;23H[6;23H[5;23H[4;23H[3;23H[3;13H- name: worker-cache[K[4;13H  mountPath: /var/cache/app[5;11Hports:[K[6;13H- name: http[K[7;11H    containerPort: {{ .Values.common.port }}[8;11Henv:[K[9;13H{{- range $name, $value := .Values.worker.env }}[10;13H- name: {{ $name }}[11;13H  value: {{ $value | quote }}[12;13H{{- end }}[K[13;11HreadinessProbe[14;13HhttpGet:[K[15;11H    path: /healthz[16;13H  port: {{ .Values.common.port }}[K[17;7H      initialDelaySeconds: 3[18;9H    periodSeconds: 5[19;11H  timeoutSeconds: 3[20;11HsecurityContext:[21;13HrunAsNonRoot: true[22;13HrunAsUser: 65532[23;13HrunAsGroup: 65532[24;13HreadOnlyRootFilesystem: true[25;13HallowPrivilegeEscalation: false[26;13Hcapabilities:[27;15Hdrop: ["ALL"][15;23H[14;21H[13;23H[12;23H[11;23H[10;23H[9;23H[8;15H[7;23H[6;23H[5;17H[4;23H[3;23H[3;5HmatchLabels:[K[4;7Happ: worker[K[5;3Htemplate:[K[6;5Hmetadata:[K[7;7Hlabels:[K[8;9Happ: worker[9;9H{{- include "lab.labels" . | nindent 8 }}[K[10;5Hspec:[K[11;7Hcontainers:[K[12;9H- name: worker[13;11Himage: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"[14;11HimagePullPolicy: {{ .Values.image.pullPolicy }}[15;11HvolumeMounts:[K[16;13H- name: worker-cache[K[17;13H  mountPath: /var/cache/app[18;11Hports:[K[19;13H- name: http[K[20;11H    containerPort: {{ .Values.common.port }}[21;11Henv:[K[22;13H{{- range $name, $value := .Values.worker.env }}[23;13H- name: {{ $name }}[24;13H  value: {{ $value | quote }}[25;13H{{- end }}[K[26;11HreadinessProbe[27;13HhttpGet:[K[15;23H[14;23H[13;23H[12;23H[11;18H[10;10H[11;18H[12;23H[13;23H[14;23H[15;23H[16;23H[17;23H[18;17H[19;23H[20;23H[21;15H[22;23H[23;23H[24;23H[25;23H[26;23H[27;21H[3;5H        - name: worker-cache[4;7H        mountPath: /var/cache/app[5;3H        ports:[6;5H        - name: http[7;7H        containerPort: {{ .Values.common.port }}[8;9H  env:[K[9;9H    {{- range $name, $value := .Values.worker.env }}[10;5H        - name: {{ $name }}[11;7H        value: {{ $value | quote }}[12;9H    {{- end }}[13;11HreadinessProbe:[K[14;11H  httpGet:[K[15;11H    path: /healthz[16;13H  port: {{ .Values.common.port }}[17;13HinitialDelaySeconds: 3[K[18;11H  periodSeconds: 5[19;13HtimeoutSeconds: 3[20;11HsecurityContext:[K[21;11H  runAsNonRoot: true[22;13HrunAsUser: 65532[K[23;13HrunAsGroup: 65532  [24;13HreadOnlyRootFilesystem: true [25;13HallowPrivilegeEscalation: false[26;11H  capabilities[27;13H  drop: ["ALL"][15;23H[16;23H[17;23H[18;23H[19;23H[20;23H[21;23H[22;23H[23;23H[24;23H[25;23H[26;23H[27;23H[3;13H  port: {{ .Values.common.port }}[4;13HinitialDelaySeconds: 3[K[5;11H  periodSeconds: 5[6;13HtimeoutSeconds: 3[7;11HsecurityContext:[K[8;11H  runAsNonRoot: true[9;13HrunAsUser: 65532[K[10;13HrunAsGroup: 65532  [11;13HreadOnlyRootFilesystem: true [12;13HallowPrivilegeEscalation: false[13;11H  capabilities[14;13H  drop: ["ALL"][15;11Hresources:[K[16;13H{{- toYaml .Values.worker.resources | nindent 12 }}[17;7Hvolumes:[K[18;9H- name: worker-cache[19;11HemptyDir: {}[K[20;11H[K[21;13H[K[22;13H[K[23;13H[K[24;13H[K[25;13H[K[26;13H[K[27;15H[K[15;21H[16;23H[17;15H[18;23H[19;23H[20;1H[28;1H                                                                                                                        [28;1H[7mFile Name to write :                                                                                                    [28;22H[27m[29;22H[7mT[27m  To Files                                                                                        [30;2H[7mC[27m Cancel           [7mT[27m[7mA[27m[7mB[27m Complete                                                                                       [K[7m[28;22Hbroken-chart/templates/worker.yaml                                                                 [28;56H[27m[28;1H                                                                                                                        [28;54H[7m[ Writing... ][27m[28;1H                                                                                                                        [28;52H[7m[ Wrote 53 lines ][27m[1;43H[7m    File: broken-chart/templates/worker.yaml                                [27m[29;1H[K[30;1H[K[29;1H[7m^[27m[7mG[27m Get Help         [7m^[27m[7mO[27m WriteOut         [7m^[27m[7mR[27m Read File        [7m^[27m[7mY[27m Prev Pg          [7m^[27m[7mK[27m Cut Text         [7m^[27m[7mC[27m Cur Pos          [30;1H[7m^[27m[7mX[27m Exit             [7m^[27m[7mJ[27m Justify          [7m^[27m[7mW[27m Where is         [7m^[27m[7mV[27m Next Pg          [7m^[27m[7mU[27m UnCut Text       [7m^[27m[7mT[27m To Spell        [K[20;1H[29;1H[K[30;1H[K[?1049l[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mcat broken-chart/templates/worker.yaml[27m[38D[27mc[27ma[27mt[27m [27mb[27mr[27mo[27mk[27me[27mn[27m-[27mc[27mh[27ma[27mr[27mt[27m/[27mt[27me[27mm[27mp[27ml[27ma[27mt[27me[27ms[27m/[27mw[27mo[27mr[27mk[27me[27mr[27m.[27my[27ma[27mm[27ml[?2004l
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+  labels:
+    app: worker
+    {{- include "lab.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.worker.replicas }}
+  selector:
+    matchLabels:
+      app: worker
+  template:
+    metadata:
+      labels:
+        app: worker
+        {{- include "lab.labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: worker
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: worker-cache
+              mountPath: /var/cache/app
+          ports:
+            - name: http
+              containerPort: {{ .Values.common.port }}
+          env:
+            {{- range $name, $value := .Values.worker.env }}
+            - name: {{ $name }}
+              value: {{ $value | quote }}
+            {{- end }}
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.common.port }}
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            timeoutSeconds: 3
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65532
+            runAsGroup: 65532
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            {{- toYaml .Values.worker.resources | nindent 12 }}
+      volumes:
+        - name: worker-cache
+          emptyDir: {}
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mnano broken-chart/values.yaml[27m[29D[27mn[27ma[27mn[27mo[27m [27mb[27mr[27mo[27mk[27me[27mn[27m-[27mc[27mh[27ma[27mr[27mt[27m/[27mv[27ma[27ml[27mu[27me[27ms[27m.[27my[27ma[27mm[27ml[?2004l
+[?1049h[1;30r[1;1H[J[7m  UW PICO 5.09                                               New Buffer                                                 [27m[29;1H[K[30;1H[K[29;1H[7m^[27m[7mG[27m Get Help         [7m^[27m[7mO[27m WriteOut         [7m^[27m[7mR[27m Read File        [7m^[27m[7mY[27m Prev Pg          [7m^[27m[7mK[27m Cut Text         [7m^[27m[7mC[27m Cur Pos          [30;1H[7m^[27m[7mX[27m Exit             [7m^[27m[7mJ[27m Justify          [7m^[27m[7mW[27m Where is         [7m^[27m[7mV[27m Next Pg          [7m^[27m[7mU[27m UnCut Text       [7m^[27m[7mT[27m To Spell        [K[3;1H[28;1H                                                                                                                        [28;53H[7m[ Reading file ][27m[28;1H                                                                                                                        [28;52H[7m[ Read 92 lines ][27m[1;1H[J[7m  UW PICO 5.09                                     File: broken-chart/values.yaml                                       [27m[3;1H# Debug lab — values.[4;1H#[5;1H# Lab rules (also in the assignment):[6;1H#   * You may change anything in this chart — values or templates.[7;1H#   * You may NOT change image.repository or image.tag.[8;1H#   * You may NOT modify anything under ../cluster-state/.[9;1H#   * You may NOT delete workloads to make a symptom disappear.[11;1Himage:[12;3Hrepository: docker.io/ebinterview/eb-debug-app[13;3Htag: "1.0.1"[14;3HpullPolicy: IfNotPresent[16;1Hcommon:[17;3H# Every workload serves plain HTTP on this port.[18;3Hport: 8080[20;1Hbackend:[21;3Hreplicas: 1[22;3Henv:[23;5HAPP_MODE: "api"[24;5HAPP_NAME: "backend"[25;5HVERSION: "2.0.0"[26;3Hresources:[27;5Hrequests:[29;1H[K[30;1H[K[29;1H[7m^[27m[7mG[27m Get Help         [7m^[27m[7mO[27m WriteOut         [7m^[27m[7mR[27m Read File        [7m^[27m[7mY[27m Prev Pg          [7m^[27m[7mK[27m Cut Text         [7m^[27m[7mC[27m Cur Pos          [30;1H[7m^[27m[7mX[27m Exit             [7m^[27m[7mJ[27m Justify          [7m^[27m[7mW[27m Where is         [7m^[27m[7mV[27m Next Pg          [7m^[27m[7mU[27m UnCut Text       [7m^[27m[7mT[27m To Spell        [K[3;1H[4;1H[5;1H[6;1H[7;1H[8;1H[9;1H[10;1H[11;1H[12;1H[13;1H[14;1H[15;1H[16;1H[17;1H[18;1H[19;1H[20;1H[21;1H[22;1H[23;1H[24;1H[25;1H[26;1H[27;1H[3;1Hcommon:[K[4;1H  # Every workload serves plain HTTP on this port.[5;1H  port: 8080[K[6;1H[K[7;1Hbackend:[K[8;1H  replicas: 1[K[9;1H  env:[K[10;5HAPP_MODE: "api"[11;1H    APP_NAME: "backend"[12;3H  VERSION: "2.0.0"[K[13;3Hresources:  [14;3H  requests:[K[15;7Hcpu: "50m"[16;1H      memory: "64Mi"[17;3H  limits:[K[18;3H    cpu: "200m"[19;7Hmemory: "128Mi"[20;1H[K[21;1Hgateway:[K[22;3Hreplicas: 1[23;3Henv:[K[24;9HMODE: "gateway[25;5HAPP_NAME: "gateway"[26;3H  VERSION: "2.0.0"[27;5HBACKEND_URL: "http://backend.debug-lab.svc:8080"[15;1H[16;1H[17;1H[18;1H[19;1H[20;1H[21;1H[22;1H[23;1H[24;1H[25;1H[26;1H[27;1H[3;1H      memory: "64Mi"[4;3H  limits:[K[5;3H    cpu: "200m"[6;7Hmemory: "128Mi"[7;1H[K[8;1Hgateway:[K[9;3Hreplicas: 1[10;3Henv:[K[11;9HMODE: "gateway[12;5HAPP_NAME: "gateway"[13;3H  VERSION: "2.0.0"[14;5HBACKEND_URL: "http://backend.debug-lab.svc:8080"[15;3Hresources:[K[16;5Hrequests:[K[17;5H  cpu: "50m"[18;7Hmemory: "64Mi"[19;5Hlimits:[K[20;7Hcpu: "200m"[21;1H      memory: "128Mi"[22;3H[K[23;1Hworker:[24;3Hreplicas: 1[K[25;3Henv:[K[26;5HAPP_MODE: "worker"[27;5HAPP_NAME: "worker"[K[15;1H[16;1H[17;1H[18;1H[19;1H[20;1H[21;1H[22;1H[23;1H[24;1H[25;1H[26;1H[27;1H[3;5Hrequests:[K[4;5H  cpu: "50m"[5;7Hmemory: "64Mi"[6;5Hlimits:[K[7;7Hcpu: "200m"[8;1H      memory: "128Mi"[9;3H[K[10;1Hworker:[11;3Hreplicas: 1[K[12;3Henv:[K[13;5HAPP_MODE: "worker"[14;5HAPP_NAME: "worker"[K[15;3H  VERSION: "2.0.0"[16;3Hresources: [17;5Hrequests:   [18;7Hcpu: "50m"[K[19;5H  memory: "64Mi"[20;5Hlimits:[K[21;7Hcpu: "200m"[K[22;7Hmemory: "128Mi"[23;1H[K[24;1Hreporter:[K[25;3Hreplicas: 1[26;3HserviceAccountName: reporter[27;3Henv:[K[15;1H[16;1H[17;1H[18;1H[19;1H[20;1H[21;1H[22;1H[23;1H[24;1H[25;1H[26;1H[27;1H[3;3Hresources: [4;5Hrequests:   [5;7Hcpu: "50m"[K[6;5H  memory: "64Mi"[7;5Hlimits:[K[8;7Hcpu: "200m"[K[9;7Hmemory: "128Mi"[10;1H[K[11;1Hreporter:[K[12;3Hreplicas: 1[13;3HserviceAccountName: reporter[14;3Henv:[K[15;5HAPP_MODE: "reporter"[16;3H  APP_NAME: "reporter"[17;5HVERSION: "2.0.0"[18;3Hresources:[K[19;5Hrequests:[K[20;5H  cpu: "50m"[21;7Hmemory: "64Mi"[22;5Hlimits:[K[23;7Hcpu: "200m"[24;1H      memory: "128Mi"[25;3H[K[26;1Hmetrics:[K[27;3Hreplicas: 1[15;1H[16;1H[17;1H[18;1H[19;1H[20;1H[21;1H[22;1H[23;1H[24;1H[25;1H[26;1H[27;1H[3;3H  APP_NAME: "reporter"[4;5HVERSION: "2.0.0"[5;3Hresources:[K[6;5Hrequests:[K[7;5H  cpu: "50m"[8;7Hmemory: "64Mi"[9;5Hlimits:[K[10;7Hcpu: "200m"[11;1H      memory: "128Mi"[12;3H[K[13;1Hmetrics:[K[14;3Hreplicas: 1[15;3Henv:[K[16;9HMODE: "metrics" [17;5HAPP_NAME: "metrics"[18;3H  VERSION: "2.0.0"[19;3Hresources: [20;5Hrequests:   [21;7Hcpu: "200m"   [22;5H  memory: "64Mi"[23;5Hlimits:[K[24;7Hcpu: "500m"[K[25;7Hmemory: "128Mi"[26;1H[K[27;1Hmigrate:[K[15;1H[16;1H[16;2H[16;3H[16;4H[16;5H[16;6H[16;7H[16;8H[16;9H[16;10H[16;11H[16;12H[16;13H[16;14H[16;15H[16;16H[16;17H[16;18H[16;19H[16;20H[16;21H[16;22H[16;23H[1;48H[7mFile: broken-chart/values.yaml                                 Modified[27m[16;22H" [16;22H[16;21H" [16;21H[16;20H" [16;20H[16;19H" [16;19H[16;18H" [16;18H[16;17H" [16;17H[16;16H" [16;16Ha"[16;17Hp"[16;18Hi"[16;19H[28;1H                                                                                                                        [28;1H[7mFile Name to write :                                                                                                    [28;22H[27m[29;22H[7mT[27m  To Files                                                                                        [30;2H[7mC[27m Cancel           [7mT[27m[7mA[27m[7mB[27m Complete                                                                                       [K[7m[28;22Hbroken-chart/values.yaml                                                                           [28;46H[27m[28;1H                                                                                                                        [28;54H[7m[ Writing... ][27m[28;1H                                                                                                                        [28;52H[7m[ Wrote 92 lines ][27m[1;48H[7m    File: broken-chart/values.yaml                                     [27m[29;1H[K[30;1H[K[29;1H[7m^[27m[7mG[27m Get Help         [7m^[27m[7mO[27m WriteOut         [7m^[27m[7mR[27m Read File        [7m^[27m[7mY[27m Prev Pg          [7m^[27m[7mK[27m Cut Text         [7m^[27m[7mC[27m Cur Pos          [30;1H[7m^[27m[7mX[27m Exit             [7m^[27m[7mJ[27m Justify          [7m^[27m[7mW[27m Where is         [7m^[27m[7mV[27m Next Pg          [7m^[27m[7mU[27m UnCut Text       [7m^[27m[7mT[27m To Spell        [K[16;19H[29;1H[K[30;1H[K[?1049l[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mhelm lint ./broken-chart[27m[24D[27mh[27me[27ml[27mm[27m [27ml[27mi[27mn[27mt[27m [27m.[27m/[27mb[27mr[27mo[27mk[27me[27mn[27m-[27mc[27mh[27ma[27mr[27mt[?2004l
+==> Linting ./broken-chart
+[INFO] Chart.yaml: icon is recommended
+
+1 chart(s) linted, 0 chart(s) failed
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7m./scenario.sh up[27m[16D[27m.[27m/[27ms[27mc[27me[27mn[27ma[27mr[27mi[27mo[27m.[27ms[27mh[27m [27mu[27mp[?2004l
+==> applying cluster environment (cluster-state/)
+limitrange/debug-lab-guardrails unchanged
+namespace/debug-lab unchanged
+==> installing the broken chart
+Release "debug-lab" has been upgraded. Happy Helming!
+NAME: debug-lab
+LAST DEPLOYED: Fri Nov  6 19:28:30 2026
+NAMESPACE: [36mdebug-lab[0m
+STATUS: [32mdeployed[0m
+REVISION: 3
+DESCRIPTION: Upgrade complete
+TEST SUITE: None
+NOTES:
+debug-lab installed into namespace debug-lab.
+
+Goal state:
+  * migrate Job: Completed
+  * backend, gateway, worker, reporter, metrics: all pods Running and 1/1 Ready
+  * gateway /status reports {"self":"ok","backend":"ok",...}
+
+Check your progress at any time:
+  ./scenario.sh verify
+
+Lab is (partially) installed. Investigate with kubectl, fix the chart,
+re-run './scenario.sh up' to apply your fixes, and './scenario.sh verify'
+to check progress.
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mkubectl get pods -n debug-lab[27m
+[7mkubectl get jobs -n debug-lab[27m[K[A[18C[27mk[27mu[27mb[27me[27mc[27mt[27ml[27m [27mg[27me[27mt[27m [27mp[27mo[27md[27ms[27m [27m-[27mn[27m [27md[27me[27mb[27mu[27mg[27m-[27ml[27ma[27mb[1B[27mk[27mu[27mb[27me[27mc[27mt[27ml[27m [27mg[27me[27mt[27m [27mj[27mo[27mb[27ms[27m [27m-[27mn[27m [27md[27me[27mb[27mu[27mg[27m-[27ml[27ma[27mb[?2004l
+NAME                        READY   STATUS                       RESTARTS       AGE
+backend-6865788b54-lbcfh    0/1     Running                      0              12m
+backend-7948fd6b4b-6spgv    0/1     CreateContainerConfigError   0              50m
+gateway-5cbdcd4bf8-mv9qz    0/1     CreateContainerConfigError   0              50m
+gateway-dd7545d46-zcrr6     0/1     Running                      0              12m
+metrics-7795687f9d-6m6rv    0/1     CrashLoopBackOff             7 (119s ago)   12m
+metrics-7dd5f6d545-4cpqr    0/1     Running                      0              6s
+migrate-h72h5               0/1     Completed                    0              12m
+reporter-6f8bff6b8d-stqp8   0/1     CreateContainerConfigError   0              50m
+reporter-74bf5fb96-nmq9q    0/1     Running                      0              12m
+worker-644f6d84cd-wtj54     0/1     CrashLoopBackOff             7 (106s ago)   12m
+worker-75549d889f-s9lbc     0/1     Running                      0              6s
+NAME      STATUS     COMPLETIONS   DURATION   AGE
+migrate   Complete   1/1           6s         12m
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mkubectl logs deployment/backend -n debug-lab[27m[44D[27mk[27mu[27mb[27me[27mc[27mt[27ml[27m [27ml[27mo[27mg[27ms[27m [27md[27me[27mp[27ml[27mo[27my[27mm[27me[27mn[27mt[27m/[27mb[27ma[27mc[27mk[27me[27mn[27md[27m [27m-[27mn[27m [27md[27me[27mb[27mu[27mg[27m-[27ml[27ma[27mb[?2004l
+Found 2 pods, using pod/backend-6865788b54-lbcfh
+2026/11/06 13:45:39 eb-debug-app 2.0.0 starting: mode=api pod=backend-6865788b54-lbcfh listening on :8081 (image default is 8081; set PORT to override)
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mkubectl logs deployment/gateway -n debug-lab[27m[44D[27mk[27mu[27mb[27me[27mc[27mt[27ml[27m [27ml[27mo[27mg[27ms[27m [27md[27me[27mp[27ml[27mo[27my[27mm[27me[27mn[27mt[27m/[27mg[27ma[27mt[27me[27mw[27ma[27my[27m [27m-[27mn[27m [27md[27me[27mb[27mu[27mg[27m-[27ml[27ma[27mb[?2004l
+Found 2 pods, using pod/gateway-dd7545d46-zcrr6
+2026/11/06 13:45:39 eb-debug-app 2.0.0 starting: mode=gateway pod=gateway-dd7545d46-zcrr6 listening on :8081 (image default is 8081; set PORT to override)
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mkubectl logs deployment/reporter -n debug-lab[27m[45D[27mk[27mu[27mb[27me[27mc[27mt[27ml[27m [27ml[27mo[27mg[27ms[27m [27md[27me[27mp[27ml[27mo[27my[27mm[27me[27mn[27mt[27m/[27mr[27me[27mp[27mo[27mr[27mt[27me[27mr[27m [27m-[27mn[27m [27md[27me[27mb[27mu[27mg[27m-[27ml[27ma[27mb[?2004l
+Found 2 pods, using pod/reporter-74bf5fb96-nmq9q
+2026/11/06 13:45:39 eb-debug-app 2.0.0 starting: mode=reporter pod=reporter-74bf5fb96-nmq9q listening on :8081 (image default is 8081; set PORT to override)
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mkubectl logs deployment/worker -n debug-lab[27m[43D[27mk[27mu[27mb[27me[27mc[27mt[27ml[27m [27ml[27mo[27mg[27ms[27m [27md[27me[27mp[27ml[27mo[27my[27mm[27me[27mn[27mt[27m/[27mw[27mo[27mr[27mk[27me[27mr[27m [27m-[27mn[27m [27md[27me[27mb[27mu[27mg[27m-[27ml[27ma[27mb[?2004l
+Found 2 pods, using pod/worker-644f6d84cd-wtj54
+2026/11/06 13:56:50 FATAL: worker could not initialise its cache: mkdir /var/cache/app: read-only file system — the process needs a writable directory at /var/cache/app (mount a volume there, or set CACHE_DIR)
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7m./scenario.sh verify[27m[20D[27m.[27m/[27ms[27mc[27me[27mn[27ma[27mr[27mi[27mo[27m.[27ms[27mh[27m [27mv[27me[27mr[27mi[27mf[27my[?2004l
+==> verifying goal state in namespace debug-lab
+  [32mPASS[0m  migrate Job completed
+  [31mFAIL[0m  deployment backend: 0/1 ready
+  [31mFAIL[0m  deployment gateway: 0/1 ready
+  [31mFAIL[0m  deployment worker: 0/1 ready
+  [31mFAIL[0m  deployment reporter: 0/1 ready
+  [31mFAIL[0m  deployment metrics: 0/1 ready
+  [31mFAIL[0m  2 pod(s) in CrashLoopBackOff
+  [32mPASS[0m  ServiceAccount debug-lab/reporter can list pods
+  [31mFAIL[0m  backend does not answer on http://backend:8080/healthz
+  [31mFAIL[0m  gateway /status does not report backend=ok
+  [31mFAIL[0m  reporter /report does not return a pod count
+
+[31m9 check(s) failing[0m, 2 passing. Keep digging — every failure is a symptom.
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mgrep -n -A3 'common:' broken-chart/values.yaml[27m[46D[27mg[27mr[27me[27mp[27m [27m-[27mn[27m [27m-[27mA[27m3[27m [27m'[27mc[27mo[27mm[27mm[27mo[27mn[27m:[27m'[27m [27mb[27mr[27mo[27mk[27me[27mn[27m-[27mc[27mh[27ma[27mr[27mt[27m/[27mv[27ma[27ml[27mu[27me[27ms[27m.[27my[27ma[27mm[27ml[?2004l
+14:common:
+15-  # Every workload serves plain HTTP on this port.
+16-  port: 8080
+17-
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mls broken-chart/templates[27m[25D[27ml[27ms[27m [27mb[27mr[27mo[27mk[27me[27mn[27m-[27mc[27mh[27ma[27mr[27mt[27m/[27mt[27me[27mm[27mp[27ml[27ma[27mt[27me[27ms[?2004l
+_helpers.tpl		gateway.yaml		migrate-job.yaml	rbac.yaml		worker.yaml
+backend.yaml		metrics.yaml		NOTES.txt		reporter.yaml
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mcat broken-chart/templates/backend-service.yaml[27m[47D[27mc[27ma[27mt[27m [27mb[27mr[27mo[27mk[27me[27mn[27m-[27mc[27mh[27ma[27mr[27mt[27m/[27mt[27me[27mm[27mp[27ml[27ma[27mt[27me[27ms[27m/[27mb[27ma[27mc[27mk[27me[27mn[27md[27m-[27ms[27me[27mr[27mv[27mi[27mc[27me[27m.[27my[27ma[27mm[27ml[?2004l
+cat: broken-chart/templates/backend-service.yaml: No such file or directory
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mkubectl get pods -n debug-lab -l app=worker[27m[43D[27mk[27mu[27mb[27me[27mc[27mt[27ml[27m [27mg[27me[27mt[27m [27mp[27mo[27md[27ms[27m [27m-[27mn[27m [27md[27me[27mb[27mu[27mg[27m-[27ml[27ma[27mb[27m [27m-[27ml[27m [27ma[27mp[27mp[27m=[27mw[27mo[27mr[27mk[27me[27mr[?2004l
+NAME                      READY   STATUS             RESTARTS        AGE
+worker-644f6d84cd-wtj54   0/1     CrashLoopBackOff   7 (3m54s ago)   15m
+worker-75549d889f-s9lbc   0/1     Running            0               2m14s
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mkubectl logs <NEW_WORKER_POD_NAME> -n debug-lab[27m[47D[27mk[27mu[27mb[27me[27mc[27mt[27ml[27m [27ml[27mo[27mg[27ms[27m [27m<[27mN[27mE[27mW[27m_[27mW[27mO[27mR[27mK[27mE[27mR[27m_[27mP[27mO[27mD[27m_[27mN[27mA[27mM[27mE[27m>[27m [27m-[27mn[27m [27md[27me[27mb[27mu[27mg[27m-[27ml[27ma[27mb[?2004l
+zsh: no such file or directory: NEW_WORKER_POD_NAME
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mkubectl logs worker-75549d889f-s9lbc -n debug-lab[27m[49D[27mk[27mu[27mb[27me[27mc[27mt[27ml[27m [27ml[27mo[27mg[27ms[27m [27mw[27mo[27mr[27mk[27me[27mr[27m-[27m7[27m5[27m5[27m4[27m9[27md[27m8[27m8[27m9[27mf[27m-[27ms[27m9[27ml[27mb[27mc[27m [27m-[27mn[27m [27md[27me[27mb[27mu[27mg[27m-[27ml[27ma[27mb[?2004l
+2026/11/06 13:58:31 eb-debug-app 2.0.0 starting: mode=worker pod=worker-75549d889f-s9lbc listening on :8081 (image default is 8081; set PORT to override)
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mnano broken-chart/values.yaml[27m[29D[27mn[27ma[27mn[27mo[27m [27mb[27mr[27mo[27mk[27me[27mn[27m-[27mc[27mh[27ma[27mr[27mt[27m/[27mv[27ma[27ml[27mu[27me[27ms[27m.[27my[27ma[27mm[27ml[?2004l
+[?1049h[1;30r[1;1H[J[7m  UW PICO 5.09                                               New Buffer                                                 [27m[29;1H[K[30;1H[K[29;1H[7m^[27m[7mG[27m Get Help         [7m^[27m[7mO[27m WriteOut         [7m^[27m[7mR[27m Read File        [7m^[27m[7mY[27m Prev Pg          [7m^[27m[7mK[27m Cut Text         [7m^[27m[7mC[27m Cur Pos          [30;1H[7m^[27m[7mX[27m Exit             [7m^[27m[7mJ[27m Justify          [7m^[27m[7mW[27m Where is         [7m^[27m[7mV[27m Next Pg          [7m^[27m[7mU[27m UnCut Text       [7m^[27m[7mT[27m To Spell        [K[3;1H[28;1H                                                                                                                        [28;53H[7m[ Reading file ][27m[28;1H                                                                                                                        [28;52H[7m[ Read 92 lines ][27m[1;1H[J[7m  UW PICO 5.09                                     File: broken-chart/values.yaml                                       [27m[3;1H# Debug lab — values.[4;1H#[5;1H# Lab rules (also in the assignment):[6;1H#   * You may change anything in this chart — values or templates.[7;1H#   * You may NOT change image.repository or image.tag.[8;1H#   * You may NOT modify anything under ../cluster-state/.[9;1H#   * You may NOT delete workloads to make a symptom disappear.[11;1Himage:[12;3Hrepository: docker.io/ebinterview/eb-debug-app[13;3Htag: "1.0.1"[14;3HpullPolicy: IfNotPresent[16;1Hcommon:[17;3H# Every workload serves plain HTTP on this port.[18;3Hport: 8080[20;1Hbackend:[21;3Hreplicas: 1[22;3Henv:[23;5HAPP_MODE: "api"[24;5HAPP_NAME: "backend"[25;5HVERSION: "2.0.0"[26;3Hresources:[27;5Hrequests:[29;1H[K[30;1H[K[29;1H[7m^[27m[7mG[27m Get Help         [7m^[27m[7mO[27m WriteOut         [7m^[27m[7mR[27m Read File        [7m^[27m[7mY[27m Prev Pg          [7m^[27m[7mK[27m Cut Text         [7m^[27m[7mC[27m Cur Pos          [30;1H[7m^[27m[7mX[27m Exit             [7m^[27m[7mJ[27m Justify          [7m^[27m[7mW[27m Where is         [7m^[27m[7mV[27m Next Pg          [7m^[27m[7mU[27m UnCut Text       [7m^[27m[7mT[27m To Spell        [K[3;1H[4;1H[5;1H[6;1H[7;1H[8;1H[9;1H[10;1H[11;1H[12;1H[13;1H[14;1H[15;1H[16;1H[17;1H[18;1H[18;2H[18;3H[18;4H[18;5H[18;6H[18;7H[18;8H[18;9H[18;10H[18;11H[18;12H[18;13H[1;48H[7mFile: broken-chart/values.yaml                                 Modified[27m[18;12H [18;12H1[28;1H                                                                                                                        [28;1H[7mFile Name to write :                                                                                                    [28;22H[27m[29;22H[7mT[27m  To Files                                                                                        [30;2H[7mC[27m Cancel           [7mT[27m[7mA[27m[7mB[27m Complete                                                                                       [K[7m[28;22Hbroken-chart/values.yaml                                                                           [28;46H[27m[28;1H                                                                                                                        [28;54H[7m[ Writing... ][27m[28;1H                                                                                                                        [28;52H[7m[ Wrote 92 lines ][27m[1;48H[7m    File: broken-chart/values.yaml                                     [27m[29;1H[K[30;1H[K[29;1H[7m^[27m[7mG[27m Get Help         [7m^[27m[7mO[27m WriteOut         [7m^[27m[7mR[27m Read File        [7m^[27m[7mY[27m Prev Pg          [7m^[27m[7mK[27m Cut Text         [7m^[27m[7mC[27m Cur Pos          [30;1H[7m^[27m[7mX[27m Exit             [7m^[27m[7mJ[27m Justify          [7m^[27m[7mW[27m Where is         [7m^[27m[7mV[27m Next Pg          [7m^[27m[7mU[27m UnCut Text       [7m^[27m[7mT[27m To Spell        [K[18;13H[29;1H[K[30;1H[K[?1049l[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mcat broken-chart/templates/backend.yaml[27m[39D[27mc[27ma[27mt[27m [27mb[27mr[27mo[27mk[27me[27mn[27m-[27mc[27mh[27ma[27mr[27mt[27m/[27mt[27me[27mm[27mp[27ml[27ma[27mt[27me[27ms[27m/[27mb[27ma[27mc[27mk[27me[27mn[27md[27m.[27my[27ma[27mm[27ml[?2004l
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  labels:
+    app: backend
+    {{- include "lab.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.backend.replicas }}
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+        {{- include "lab.labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: backend
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.common.port }}
+          env:
+            {{- range $name, $value := .Values.backend.env }}
+            - name: {{ $name }}
+              value: {{ $value | quote }}
+            {{- end }}
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.common.port }}
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            timeoutSeconds: 3
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65532
+            runAsGroup: 65532
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            {{- toYaml .Values.backend.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  labels:
+    app: backend
+    {{- include "lab.labels" . | nindent 4 }}
+spec:
+  selector:
+    app: backend
+  ports:
+    - name: http
+      port: 8080
+      targetPort: {{ .Values.common.port }}
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mgrep -n -A3 'common:' broken-chart/values.yaml[27m[46D[27mg[27mr[27me[27mp[27m [27m-[27mn[27m [27m-[27mA[27m3[27m [27m'[27mc[27mo[27mm[27mm[27mo[27mn[27m:[27m'[27m [27mb[27mr[27mo[27mk[27me[27mn[27m-[27mc[27mh[27ma[27mr[27mt[27m/[27mv[27ma[27ml[27mu[27me[27ms[27m.[27my[27ma[27mm[27ml[?2004l
+14:common:
+15-  # Every workload serves plain HTTP on this port.
+16-  port: 8081
+17-
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mcat broken-chart/templates/gateway.yaml[27m[39D[27mc[27ma[27mt[27m [27mb[27mr[27mo[27mk[27me[27mn[27m-[27mc[27mh[27ma[27mr[27mt[27m/[27mt[27me[27mm[27mp[27ml[27ma[27mt[27me[27ms[27m/[27mg[27ma[27mt[27me[27mw[27ma[27my[27m.[27my[27ma[27mm[27ml[?2004l
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway
+  labels:
+    app: gateway
+    {{- include "lab.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.gateway.replicas }}
+  selector:
+    matchLabels:
+      app: gateway
+  template:
+    metadata:
+      labels:
+        app: gateway
+        {{- include "lab.labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: gateway
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.common.port }}
+          env:
+            {{- range $name, $value := .Values.gateway.env }}
+            - name: {{ $name }}
+              value: {{ $value | quote }}
+            {{- end }}
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.common.port }}
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            timeoutSeconds: 3
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65532
+            runAsGroup: 65532
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            {{- toYaml .Values.gateway.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway
+  labels:
+    app: gateway
+    {{- include "lab.labels" . | nindent 4 }}
+spec:
+  selector:
+    app: gateway
+  ports:
+    - name: http
+      port: 80
+      targetPort: {{ .Values.common.port }}
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mcat broken-chart/templates/reporter.yaml[27m[40D[27mc[27ma[27mt[27m [27mb[27mr[27mo[27mk[27me[27mn[27m-[27mc[27mh[27ma[27mr[27mt[27m/[27mt[27me[27mm[27mp[27ml[27ma[27mt[27me[27ms[27m/[27mr[27me[27mp[27mo[27mr[27mt[27me[27mr[27m.[27my[27ma[27mm[27ml[?2004l
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reporter
+  labels:
+    app: reporter
+    {{- include "lab.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.reporter.replicas }}
+  selector:
+    matchLabels:
+      app: reporter
+  template:
+    metadata:
+      labels:
+        app: reporter
+        {{- include "lab.labels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ .Values.reporter.serviceAccountName }}
+      containers:
+        - name: reporter
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.common.port }}
+          env:
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            {{- range $name, $value := .Values.reporter.env }}
+            - name: {{ $name }}
+              value: {{ $value | quote }}
+            {{- end }}
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.common.port }}
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            timeoutSeconds: 3
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65532
+            runAsGroup: 65532
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            {{- toYaml .Values.reporter.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: reporter
+  labels:
+    app: reporter
+    {{- include "lab.labels" . | nindent 4 }}
+spec:
+  selector:
+    app: reporter
+  ports:
+    - name: http
+      port: 8080
+      targetPort: {{ .Values.common.port }}
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mgrep -n -A8 'metrics:' broken-chart/values.yaml[27m[47D[27mg[27mr[27me[27mp[27m [27m-[27mn[27m [27m-[27mA[27m8[27m [27m'[27mm[27me[27mt[27mr[27mi[27mc[27ms[27m:[27m'[27m [27mb[27mr[27mo[27mk[27me[27mn[27m-[27mc[27mh[27ma[27mr[27mt[27m/[27mv[27ma[27ml[27mu[27me[27ms[27m.[27my[27ma[27mm[27ml[?2004l
+76:metrics:
+77-  replicas: 1
+78-  env:
+79-    APP_MODE: "api"
+80-    APP_NAME: "metrics"
+81-    VERSION: "2.0.0"
+82-  resources:
+83-    requests:
+84-      cpu: "200m"
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mhelm lint ./broken-chart[27m[24D[27mh[27me[27ml[27mm[27m [27ml[27mi[27mn[27mt[27m [27m.[27m/[27mb[27mr[27mo[27mk[27me[27mn[27m-[27mc[27mh[27ma[27mr[27mt[?2004l
+==> Linting ./broken-chart
+[INFO] Chart.yaml: icon is recommended
+
+1 chart(s) linted, 0 chart(s) failed
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7m./scenario.sh up[27m[16D[27m.[27m/[27ms[27mc[27me[27mn[27ma[27mr[27mi[27mo[27m.[27ms[27mh[27m [27mu[27mp[?2004l
+==> applying cluster environment (cluster-state/)
+limitrange/debug-lab-guardrails unchanged
+namespace/debug-lab unchanged
+==> installing the broken chart
+Release "debug-lab" has been upgraded. Happy Helming!
+NAME: debug-lab
+LAST DEPLOYED: Fri Nov  6 19:33:33 2026
+NAMESPACE: [36mdebug-lab[0m
+STATUS: [32mdeployed[0m
+REVISION: 4
+DESCRIPTION: Upgrade complete
+TEST SUITE: None
+NOTES:
+debug-lab installed into namespace debug-lab.
+
+Goal state:
+  * migrate Job: Completed
+  * backend, gateway, worker, reporter, metrics: all pods Running and 1/1 Ready
+  * gateway /status reports {"self":"ok","backend":"ok",...}
+
+Check your progress at any time:
+  ./scenario.sh verify
+
+Lab is (partially) installed. Investigate with kubectl, fix the chart,
+re-run './scenario.sh up' to apply your fixes, and './scenario.sh verify'
+to check progress.
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mkubectl get pods -n debug-lab[27m[29D[27mk[27mu[27mb[27me[27mc[27mt[27ml[27m [27mg[27me[27mt[27m [27mp[27mo[27md[27ms[27m [27m-[27mn[27m [27md[27me[27mb[27mu[27mg[27m-[27ml[27ma[27mb[?2004l
+NAME                        READY   STATUS      RESTARTS   AGE
+backend-6865788b54-lbcfh    0/1     Running     0          18m
+backend-77854f768d-z98zc    0/1     Running     0          5s
+gateway-8988d6bc8-khwdk     0/1     Running     0          5s
+gateway-dd7545d46-zcrr6     0/1     Running     0          18m
+metrics-5c5dc9ff8c-65pr6    0/1     Running     0          5s
+metrics-7dd5f6d545-4cpqr    0/1     Running     0          5m9s
+migrate-h72h5               0/1     Completed   0          18m
+reporter-74bf5fb96-nmq9q    0/1     Running     0          18m
+reporter-848cd9b77b-q4j2g   0/1     Running     0          5s
+worker-554dfb9475-7sb67     0/1     Running     0          5s
+worker-75549d889f-s9lbc     0/1     Running     0          5m9s
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7m./scenario.sh verify[27m[20D[27m.[27m/[27ms[27mc[27me[27mn[27ma[27mr[27mi[27mo[27m.[27ms[27mh[27m [27mv[27me[27mr[27mi[27mf[27my[?2004l
+==> verifying goal state in namespace debug-lab
+  [32mPASS[0m  migrate Job completed
+  [32mPASS[0m  deployment backend: 1/1 ready
+  [32mPASS[0m  deployment gateway: 1/1 ready
+  [32mPASS[0m  deployment worker: 1/1 ready
+  [31mFAIL[0m  deployment reporter: 0/1 ready
+  [32mPASS[0m  deployment metrics: 1/1 ready
+  [32mPASS[0m  no pods in CrashLoopBackOff
+  [32mPASS[0m  ServiceAccount debug-lab/reporter can list pods
+  [32mPASS[0m  backend answers on http://backend:8080/healthz
+  [31mFAIL[0m  gateway /status does not report backend=ok
+  [31mFAIL[0m  reporter /report does not return a pod count
+
+[31m3 check(s) failing[0m, 8 passing. Keep digging — every failure is a symptom.
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mkubectl logs deployment/reporter -n debug-lab[27m[45D[27mk[27mu[27mb[27me[27mc[27mt[27ml[27m [27ml[27mo[27mg[27ms[27m [27md[27me[27mp[27ml[27mo[27my[27mm[27me[27mn[27mt[27m/[27mr[27me[27mp[27mo[27mr[27mt[27me[27mr[27m [27m-[27mn[27m [27md[27me[27mb[27mu[27mg[27m-[27ml[27ma[27mb[?2004l
+Found 2 pods, using pod/reporter-74bf5fb96-nmq9q
+2026/11/06 13:45:39 eb-debug-app 2.0.0 starting: mode=reporter pod=reporter-74bf5fb96-nmq9q listening on :8081 (image default is 8081; set PORT to override)
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mkubectl logs deployment/gateway -n debug-lab[27m[44D[27mk[27mu[27mb[27me[27mc[27mt[27ml[27m [27ml[27mo[27mg[27ms[27m [27md[27me[27mp[27ml[27mo[27my[27mm[27me[27mn[27mt[27m/[27mg[27ma[27mt[27me[27mw[27ma[27my[27m [27m-[27mn[27m [27md[27me[27mb[27mu[27mg[27m-[27ml[27ma[27mb[?2004l
+2026/11/06 14:03:34 eb-debug-app 2.0.0 starting: mode=gateway pod=gateway-8988d6bc8-khwdk listening on :8081 (image default is 8081; set PORT to override)
+2026/11/06 14:03:40 GET /healthz -> 200 (from 10.244.0.1:50726)
+2026/11/06 14:03:45 GET /healthz -> 200 (from 10.244.0.1:50738)
+2026/11/06 14:03:50 GET /healthz -> 200 (from 10.244.0.1:52904)
+2026/11/06 14:03:55 GET /healthz -> 200 (from 10.244.0.1:52916)
+2026/11/06 14:04:00 GET /healthz -> 200 (from 10.244.0.1:54964)
+2026/11/06 14:04:04 GET /status -> 200 (from 10.244.0.30:39154)
+2026/11/06 14:04:05 GET /healthz -> 200 (from 10.244.0.1:54972)
+2026/11/06 14:04:10 GET /healthz -> 200 (from 10.244.0.1:54794)
+2026/11/06 14:04:15 GET /healthz -> 200 (from 10.244.0.1:54796)
+2026/11/06 14:04:20 GET /healthz -> 200 (from 10.244.0.1:55688)
+2026/11/06 14:04:25 GET /healthz -> 200 (from 10.244.0.1:55700)
+2026/11/06 14:04:30 GET /healthz -> 200 (from 10.244.0.1:60914)
+2026/11/06 14:04:35 GET /healthz -> 200 (from 10.244.0.1:60924)
+2026/11/06 14:04:40 GET /healthz -> 200 (from 10.244.0.1:58638)
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mkubectl describe deployment reporter -n debug-lab[27m[49D[27mk[27mu[27mb[27me[27mc[27mt[27ml[27m [27md[27me[27ms[27mc[27mr[27mi[27mb[27me[27m [27md[27me[27mp[27ml[27mo[27my[27mm[27me[27mn[27mt[27m [27mr[27me[27mp[27mo[27mr[27mt[27me[27mr[27m [27m-[27mn[27m [27md[27me[27mb[27mu[27mg[27m-[27ml[27ma[27mb[?2004l
+Name:                   reporter
+Namespace:              debug-lab
+CreationTimestamp:      Fri, 06 Nov 2026 18:38:20 +0530
+Labels:                 app=reporter
+                        app.kubernetes.io/managed-by=Helm
+                        app.kubernetes.io/part-of=eb-debug-lab
+                        helm.sh/chart=debug-lab-2.0.0
+Annotations:            deployment.kubernetes.io/revision: 3
+                        meta.helm.sh/release-name: debug-lab
+                        meta.helm.sh/release-namespace: debug-lab
+Selector:               app=reporter
+Replicas:               1 desired | 1 updated | 2 total | 0 available | 2 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  25% max unavailable, 25% max surge
+Pod Template:
+  Labels:           app=reporter
+                    app.kubernetes.io/managed-by=Helm
+                    app.kubernetes.io/part-of=eb-debug-lab
+                    helm.sh/chart=debug-lab-2.0.0
+  Service Account:  reporter
+  Containers:
+   reporter:
+    Image:      docker.io/ebinterview/eb-debug-app:1.0.1
+    Port:       8081/TCP (http)
+    Host Port:  0/TCP (http)
+    Limits:
+      cpu:     200m
+      memory:  128Mi
+    Requests:
+      cpu:      50m
+      memory:   64Mi
+    Readiness:  http-get http://:8081/healthz delay=3s timeout=3s period=5s #success=1 #failure=3
+    Environment:
+      NAMESPACE:    (v1:metadata.namespace)
+      APP_MODE:    reporter
+      APP_NAME:    reporter
+      VERSION:     2.0.0
+    Mounts:        <none>
+  Volumes:         <none>
+  Node-Selectors:  <none>
+  Tolerations:     <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      False   MinimumReplicasUnavailable
+  Progressing    True    ReplicaSetUpdated
+OldReplicaSets:  reporter-6f8bff6b8d (0/0 replicas created), reporter-74bf5fb96 (1/1 replicas created)
+NewReplicaSet:   reporter-848cd9b77b (1/1 replicas created)
+Events:
+  Type    Reason             Age   From                   Message
+  ----    ------             ----  ----                   -------
+  Normal  ScalingReplicaSet  56m   deployment-controller  Scaled up replica set reporter-6f8bff6b8d from 0 to 1
+  Normal  ScalingReplicaSet  19m   deployment-controller  Scaled up replica set reporter-74bf5fb96 from 0 to 1
+  Normal  ScalingReplicaSet  72s   deployment-controller  Scaled down replica set reporter-6f8bff6b8d from 1 to 0
+  Normal  ScalingReplicaSet  72s   deployment-controller  Scaled up replica set reporter-848cd9b77b from 0 to 1
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mkubectl get events -n debug-lab --sort-by='.lastTimestamp' | tail -20[27m[69D[27mk[27mu[27mb[27me[27mc[27mt[27ml[27m [27mg[27me[27mt[27m [27me[27mv[27me[27mn[27mt[27ms[27m [27m-[27mn[27m [27md[27me[27mb[27mu[27mg[27m-[27ml[27ma[27mb[27m [27m-[27m-[27ms[27mo[27mr[27mt[27m-[27mb[27my[27m=[27m'[27m.[27ml[27ma[27ms[27mt[27mT[27mi[27mm[27me[27ms[27mt[27ma[27mm[27mp[27m'[27m [27m|[27m [27mt[27ma[27mi[27ml[27m [27m-[27m2[27m0[?2004l
+85s         Normal    Created             pod/worker-554dfb9475-7sb67      Container created
+81s         Warning   Unhealthy           pod/metrics-7dd5f6d545-4cpqr     Readiness probe failed: Get "http://10.244.0.22:8080/healthz": dial tcp 10.244.0.22:8080: connect: connection refused
+80s         Normal    Killing             pod/backend-6865788b54-lbcfh     Stopping container backend
+80s         Normal    SuccessfulDelete    replicaset/backend-6865788b54    Deleted pod: backend-6865788b54-lbcfh
+80s         Normal    ScalingReplicaSet   deployment/metrics               Scaled down replica set metrics-7dd5f6d545 from 1 to 0
+80s         Normal    SuccessfulDelete    replicaset/gateway-dd7545d46     Deleted pod: gateway-dd7545d46-zcrr6
+80s         Normal    SuccessfulDelete    replicaset/metrics-7dd5f6d545    Deleted pod: metrics-7dd5f6d545-4cpqr
+80s         Warning   Unhealthy           pod/worker-75549d889f-s9lbc      Readiness probe failed: Get "http://10.244.0.23:8080/healthz": dial tcp 10.244.0.23:8080: connect: connection refused
+80s         Normal    Killing             pod/gateway-dd7545d46-zcrr6      Stopping container gateway
+80s         Normal    Killing             pod/metrics-7dd5f6d545-4cpqr     Stopping container metrics
+80s         Normal    ScalingReplicaSet   deployment/gateway               Scaled down replica set gateway-dd7545d46 from 1 to 0
+80s         Normal    ScalingReplicaSet   deployment/backend               Scaled down replica set backend-6865788b54 from 1 to 0
+79s         Normal    ScalingReplicaSet   deployment/worker                Scaled down replica set worker-75549d889f from 1 to 0
+79s         Normal    SuccessfulDelete    replicaset/worker-75549d889f     Deleted pod: worker-75549d889f-s9lbc
+79s         Normal    Killing             pod/worker-75549d889f-s9lbc      Stopping container worker
+57s         Normal    Pulled              pod/eb-verify-probe              Container image "busybox:1.36" already present on machine and can be accessed by the pod
+57s         Normal    Started             pod/eb-verify-probe              Container started
+57s         Normal    Created             pod/eb-verify-probe              Container created
+57s         Normal    Scheduled           pod/eb-verify-probe              Successfully assigned debug-lab/eb-verify-probe to demo-control-plane
+2s          Warning   Unhealthy           pod/reporter-848cd9b77b-q4j2g    Readiness probe failed: HTTP probe failed with statuscode: 503
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mkubectl logs reporter-848cd9b77b-q4j2g -n debug-lab[27m[51D[27mk[27mu[27mb[27me[27mc[27mt[27ml[27m [27ml[27mo[27mg[27ms[27m [27mr[27me[27mp[27mo[27mr[27mt[27me[27mr[27m-[27m8[27m4[27m8[27mc[27md[27m9[27mb[27m7[27m7[27mb[27m-[27mq[27m4[27mj[27m2[27mg[27m [27m-[27mn[27m [27md[27me[27mb[27mu[27mg[27m-[27ml[27ma[27mb[?2004l
+2026/11/06 14:03:35 eb-debug-app 2.0.0 starting: mode=reporter pod=reporter-848cd9b77b-q4j2g listening on :8081 (image default is 8081; set PORT to override)
+2026/11/06 14:03:41 pod list failed: parse pod list: unexpected end of JSON input
+2026/11/06 14:03:41 GET /healthz -> 503 (from 10.244.0.1:48878)
+2026/11/06 14:03:46 GET /healthz -> 503 (from 10.244.0.1:50100)
+2026/11/06 14:03:51 pod list failed: parse pod list: unexpected end of JSON input
+2026/11/06 14:03:51 GET /healthz -> 503 (from 10.244.0.1:50114)
+2026/11/06 14:03:56 GET /healthz -> 503 (from 10.244.0.1:49274)
+2026/11/06 14:04:01 pod list failed: parse pod list: unexpected end of JSON input
+2026/11/06 14:04:01 GET /healthz -> 503 (from 10.244.0.1:49282)
+2026/11/06 14:04:06 GET /healthz -> 503 (from 10.244.0.1:35632)
+2026/11/06 14:04:11 pod list failed: parse pod list: unexpected end of JSON input
+2026/11/06 14:04:11 GET /healthz -> 503 (from 10.244.0.1:35638)
+2026/11/06 14:04:16 GET /healthz -> 503 (from 10.244.0.1:60872)
+2026/11/06 14:04:21 pod list failed: parse pod list: unexpected end of JSON input
+2026/11/06 14:04:21 GET /healthz -> 503 (from 10.244.0.1:60886)
+2026/11/06 14:04:26 GET /healthz -> 503 (from 10.244.0.1:53908)
+2026/11/06 14:04:31 pod list failed: parse pod list: unexpected end of JSON input
+2026/11/06 14:04:31 GET /healthz -> 503 (from 10.244.0.1:53912)
+2026/11/06 14:04:36 GET /healthz -> 503 (from 10.244.0.1:47012)
+2026/11/06 14:04:41 pod list failed: parse pod list: unexpected end of JSON input
+2026/11/06 14:04:41 GET /healthz -> 503 (from 10.244.0.1:47024)
+2026/11/06 14:04:43 GET /healthz -> 503 (from 10.244.0.1:47036)
+2026/11/06 14:04:48 pod list failed: parse pod list: unexpected end of JSON input
+2026/11/06 14:04:48 GET /healthz -> 503 (from 10.244.0.1:49960)
+2026/11/06 14:04:53 GET /healthz -> 503 (from 10.244.0.1:49974)
+2026/11/06 14:04:58 pod list failed: parse pod list: unexpected end of JSON input
+2026/11/06 14:04:58 GET /healthz -> 503 (from 10.244.0.1:42762)
+2026/11/06 14:05:03 GET /healthz -> 503 (from 10.244.0.1:42766)
+2026/11/06 14:05:08 pod list failed: parse pod list: unexpected end of JSON input
+2026/11/06 14:05:08 GET /healthz -> 503 (from 10.244.0.1:60626)
+2026/11/06 14:05:13 GET /healthz -> 503 (from 10.244.0.1:60640)
+2026/11/06 14:05:18 pod list failed: parse pod list: unexpected end of JSON input
+2026/11/06 14:05:18 GET /healthz -> 503 (from 10.244.0.1:43616)
+2026/11/06 14:05:23 GET /healthz -> 503 (from 10.244.0.1:43624)
+2026/11/06 14:05:28 pod list failed: parse pod list: unexpected end of JSON input
+2026/11/06 14:05:28 GET /healthz -> 503 (from 10.244.0.1:36108)
+[1m[7m%[27m[1m[0m                                                                                                                        ]7;file://Srinaths-MacBook-Air.local/Users/srinathreddykunduru/enterprise-bot-devops-takehome/lab[0m[27m[24m[Jsrinathreddykunduru@Srinaths-MacBook-Air lab % [K[?2004h[7mkubectl port-forward pod/reporter-848cd9b77b-q4j2g 8081:8081 -n debug-lab[27m [K[A[47C[27mk[27mu[27mb[27me[27mc[27mt[27ml[27m [27mp[27mo[27mr[27mt[27m-[27mf[27mo[27mr[27mw[27ma[27mr[27md[27m [27mp[27mo[27md[27m/[27mr[27me[27mp[27mo[27mr[27mt[27me[27mr[27m-[27m8[27m4[27m8[27mc[27md[27m9[27mb[27m7[27m7[27mb[27m-[27mq[27m4[27mj[27m2[27mg[27m [27m8[27m0[27m8[27m1[27m:[27m8[27m0[27m8[27m1[27m [27m-[27mn[27m [27md[27me[27mb[27mu[27mg[27m-[27ml[27ma[27mb [K[?2004l
+Forwarding from 127.0.0.1:8081 -> 8081
+Forwarding from [::1]:8081 -> 8081
+Handling connection for 8081
